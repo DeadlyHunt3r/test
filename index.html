@@ -264,8 +264,11 @@
     }
 
     // Liste der Wörter (5-Buchstaben, erweiterbar)
-    const wordList = ["apfel", "birne", "traum", "blume", "stuhl", "tisch", "pizza", "wurst", "adler", "abend", "boden", "essen", "feuer", "gabel", "chaos", "fuchs", "worte", "kajak", "lunge", "logik", "liebe", "panda", "alamo", "gordo", "sandy", "seoul", "wanne", "bauch", "brett", "brief", "bühne", "dreck", "druck", "drift", "engel", "faden", "fahne", "farbe", "feder", "fisch", "hunde", "canis",
-					  "akten", "flora", "fauna", "schuh", "event"];
+    const wordList = ["apfel", "biene", "tisch", "stuhl", "stein", "blume", "hauch", "licht", "sonne", "wolke", "regen", "vogel", "feder", "mutig", "kraft", "liebe", "danke", "bitte", "krone", "seoul", "schaf", "pferd", "kamel", "adler", "biber", "fuchs", "dachs", "sandy", "fluss", "wiese", "wurst", "gabel", "stift", "autor", "serie", "musik", "radio", "handy", "knopf", "hexen", "geier", "räder", "flöte", "geige", 
+					  "bogen", "waffe", "kranz", "bluse", "socke", "krimi", "drama", "frech", "stark", "dicke", "dünne", "braun", "pizza", "pasta", "suppe", "salat", "curry", "nudel", "ratte", "zebra", "tiger", "panda", "otter", "qualm", "dampf", "rauch", "asche", "glanz", "blitz", "körbe", "uhren", "puppe", "torte", "kekse", "traum", "herde", "boden", "hafen", "watte", "sahne", "kraut", "mango", "blick", "fleck", 
+					  "glück", "sache", "dosen", "paris", "besen", "weide", "berge", "zweig", "bauch", "lunge", "rippe", "schuh", "ferse", "wange", "ohren", "augen", "zange", "säule", "faser", "spule", "nadel", "spalt", "kante", "mütze", "gordo", "farbe", "bunte", "wachs", "rosen", "leder", "säure", "eisen", "blech", "platz", "reich", "armut", "angst", "scham", "sünde", "hölle", "teich", "flora", "fauna", "keule", "felle", 
+					  "zähne", "magen", "darme", "glied", "runde", "ferne", "sturm", "donau", "weite", "enkel", "onkel", "tante", "münze", "fahne", "messe", "bazar", "segel", "feste", "beleg", "rolle", "ebene", "krise", "flair", "fibel", "dinge", "reise", "trick", "tempo", "dreck", "zirbe", "kohle", "motte", "wilde", "komet", "stern", "wagen", "kliff", "ozean", "dünen", "sande", "elche", "sacht", "feine", "milde", 
+					  "glatt", "zarte", "flach", "flink", "eisig", "frost", "wucht", "fabel", "sagen", "klima", "truhe", "leben", "seele", "geist", "wonne", "weber", "klare", "bande", "maske", "wider", "lippe", "stich", "krieg", "taler", "panda", "alamo", "haare", "mauer", "welle", "canis"];
 
     // Hier wird das Wörterbuch aus der de_DE_frami.dic geladen
     let dictionary = new Set();
@@ -408,7 +411,7 @@
       
       // Prüfe, ob das eingegebene Wort in der geladenen Wörterliste oder in der wordList vorhanden ist
       if (!dictionary.has(guess) && !wordList.includes(guess)) {
-        errorMessage.textContent = "Das Wort ist nicht in der Wörterliste.";
+        errorMessage.textContent = "Das ist kein Wort.";
         return;
       }
       
