@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Wordle</title>
+  <style>
+    /* CSS-Variablen für anpassbare Farben im Hex-Format */
+    :root {
+      --bg-color: #1c1c1e;           /* Haupt-Hintergrund (dunkel) */
+      --container-bg: #2c2c2e;       /* Container-Hintergrund */
+      --text-color: #f2f2f7;         /* Globale Textfarbe */
+      --nav-dot-color: #ff3b30;      /* Roter Punkt (Navigation) */
+      --input-bg: #3a3a3c;           /* Hintergrund des Eingabefelds */
+      --button-bg: #0a84ff;          /* Button-Hintergrund */
+      --button-hover-bg: #0060df;    /* Button-Hintergrund bei Hover */
+      /* Pastellige Markierungsfarben */
+      --letter-green: #9ae352;       /* Pastellgrün */
+      --letter-yellow: #FDFD96;      /* Pastellgelb */
+      --letter-red: #FFB3BA;         /* Pastellrot */
+      --letter-text: #1c1c1e;        /* Dunkle Schrift für die Buchstaben */
+      --error-color: #ffb3ba;        /* Farbe für Fehlermeldung */
+      --success-color: #B0E57C;      /* Farbe für Erfolgsmeldung */
+    }
+
+    /* Grundlegende Reset-Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    /* Globaler Stil */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), url('wordle.png');
+      background-size: cover;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    /* Roter Navigationspunkt oben links */
+    .nav-dot {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 20px;
+      height: 20px;
+      background-color: var(--nav-dot-color);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 5px rgba(255, 59, 48, 0.8);
+      transition: transform 0.2s;
+    }
+    .nav-dot:hover {
+      transform: scale(1.2);
+    }
+    /* Container */
+    .container {
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+      background-color: var(--container-bg);
+      border-radius: 20px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+    }
+    h1 {
+      margin-bottom: 10px;
+      font-weight: 600;
+      font-size: 1.8rem;
+    }
+    #attemptCount {
+      margin-bottom: 15px;
+      font-size: 1rem;
+    }
+    #errorMessage {
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+      color: var(--error-color);
+      height: 1.2em;
+    }
+    #successMessage {
+      margin-bottom: 15px;
+      font-size: 1rem;
+      color: var(--success-color);
+    }
+    #history {
+      margin-bottom: 30px;
+    }
+    .guessRow {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      margin-bottom: 5px;
+    }
+    .letter {
+      width: 50px;
+      height: 50px;
+      line-height: 50px;
+      font-size: 24px;
+      font-weight: bold;
+      border: 2px solid #3a3a3c;
+      border-radius: 10px;
+      text-transform: uppercase;
+      transition: background-color 0.3s ease, transform 0.2s;
+      color: var(--letter-text);
+    }
+    input[type="text"] {
+      width: 220px;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      text-align: center;
+      background-color: var(--input-bg);
+      color: var(--text-color);
+      margin-right: 10px;
+      outline: none;
+      transition: box-shadow 0.2s ease;
+    }
+    input[type="text"]:focus {
+      box-shadow: 0 0 8px var(--button-bg);
+    }
+    button {
+      padding: 15px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      background-color: var(--button-bg);
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    button:hover {
+      background-color: var(--button-hover-bg);
+    }
+    #info-icon {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 35px;
+      height: 35px;
+      border: 2px solid #aaa;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 26px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      color: #555;
+      background-color: #fff;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+    /* Modal Hintergrund */
+    .modal {
+      display: none; /* unsichtbar */
+      position: fixed;
+      z-index: 1001;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+    /* Modal Content */
+    .modal-content {
+      background-color: #2c2c2e;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 400px;
+      border-radius: 8px;
+      position: relative;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    /* Close Button */
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      color: #aaa;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <!-- Roter Navigationspunkt -->
+  <a href="index.html">
+    <div class="nav-dot" title="Zurück zur Startseite"></div>
+  </a>
+  
+  <div class="container">
+    <h1>Wordle</h1>
+    <!-- Anzeige der Versuche -->
+    <div id="attemptCount">Versuche: 0</div>
+    <!-- Fehlermeldung -->
+    <div id="errorMessage"></div>
+    <!-- Erfolgsmeldung -->
+    <div id="successMessage"></div>
+    <!-- Historie (bis zu 5 letzte Versuche) -->
+    <div id="history"></div>
+    <!-- Eingabe und Senden -->
+    <div>
+      <input type="text" id="guessInput" maxlength="5" placeholder="5-Buchstaben">
+      <button id="submitBtn">Senden</button>
+    </div>
+  </div>
+  
+  <!-- Info Icon -->
+  <div id="info-icon">i</div>
+  
+  <!-- Modal -->
+  <div id="info-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <p>
+        Das Ziel ist es, das tägliche Wort mit 5 Buchstaben herauszufinden.<br><br>
+        Rot bedeutet, der Buchstabe kommt nicht vor.<br><br>
+        Gelb bedeutet, richtiger Buchstabe, aber an der falschen Position.<br><br>
+        Grün bedeutet, richtiger Buchstabe und richtige Position.<br>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Funktion zum Speichern des Scores per HTTP-Anfrage an Google Script
+    async function saveScore(score) {
+      const player = localStorage.getItem("currentUser") || "Guest";
+      const apiUrl = "https://script.google.com/macros/s/AKfycbzN1dYjIwvmc083UZy_Xqxq_OIAXFXqhBe53Fy75JhDEyarjr4Sxm_h9NcIXHMuiopv/exec";
+      const sheetName = "Daily-Wordle";
+      const url = `${apiUrl}?sheetName=${encodeURIComponent(sheetName)}&player=${encodeURIComponent(player)}&score=${encodeURIComponent(score)}`;
+
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP Fehler! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("Score erfolgreich gespeichert:", data);
+      } catch (error) {
+        console.error("Fehler beim Speichern des Scores:", error);
+      }
+    }
+
+    // Nutzer aus Local Storage abrufen
+    let currentUser = localStorage.getItem('currentUser');
+    if (!currentUser) {
+      currentUser = "Gast";
+      localStorage.setItem('currentUser', currentUser);
+    }
+
+    // Liste der Wörter (5-Buchstaben, erweiterbar)
+    const wordList = ["apfel", "birne", "traum", "blume", "stuhl", "tisch", "pizza", "wurst", "adler", "abend", "boden", "essen", "feuer", "gabel", "chaos", "fuchs", "worte", "kajak", "lunge", "logik", "liebe", "panda", "alamo", "gordo", "sandy", "seoul", "wanne", "bauch", "brett", "brief", "bühne", "dreck", "druck", "drift", "engel", "faden", "fahne", "farbe", "feder", "fisch", "hunde", "canis",
+					  "akten", "flora", "fauna", "schuh", "event"];
+
+    // Hier wird das Wörterbuch aus der de_DE_frami.dic geladen
+    let dictionary = new Set();
+
+    function loadDictionary() {
+      fetch('de_DE_frami.dic')
+        .then(response => response.text())
+        .then(data => {
+          const lines = data.split('\n');
+          // Überspringe die erste Zeile, falls sie nur eine Zahl enthält
+          const startIndex = /^\d+$/.test(lines[0].trim()) ? 1 : 0;
+          lines.slice(startIndex).forEach(line => {
+            // Extrahiere nur den reinen Wortteil (ohne Flags)
+            const word = line.split('/')[0].trim().toLowerCase();
+            if (word) {
+              dictionary.add(word);
+            }
+          });
+        })
+        .catch(error => {
+          console.error("Fehler beim Laden der Wörterliste:", error);
+        });
+    }
+
+    loadDictionary();
+
+    // Ermittelt das tägliche Wort anhand des Datums
+    function getDailyWord() {
+      const today = new Date();
+      const seed = today.getFullYear() + today.getMonth() + today.getDate();
+      const index = seed % wordList.length;
+      return wordList[index];
+    }
+    const solution = getDailyWord();
+    // console.log("Tageswort:", solution);
+
+    // Array für die Versuche
+    let guessHistory = [];
+
+    // Speichert den aktuellen Spielstand im Local Storage (nur Datum und guessHistory)
+    function saveGameState() {
+      // Verwende das Datum im deutschen Format
+      const today = new Date().toLocaleDateString('de-DE');
+      const state = {
+        date: today,
+        guessHistory: guessHistory
+      };
+      localStorage.setItem("wordleGameState", JSON.stringify(state));
+    }
+
+    // Lädt den Spielstand und prüft, ob das gespeicherte Datum mit heute übereinstimmt
+    function loadGameState() {
+      const storedState = localStorage.getItem("wordleGameState");
+      if (storedState) {
+        try {
+          const state = JSON.parse(storedState);
+          // Datum im deutschen Format
+          const today = new Date().toLocaleDateString('de-DE');
+          if (state.date === today) {
+            guessHistory = state.guessHistory || [];
+            updateAttemptCount();
+            updateHistory();
+          } else {
+            localStorage.removeItem("wordleGameState");
+            guessHistory = []; // explizit zurücksetzen
+          }
+        } catch(e) {
+          console.error("Fehler beim Laden des Spielstands:", e);
+        }
+      }
+    }
+
+    // Aktualisiert die Versuchs-Anzeige
+    function updateAttemptCount() {
+      document.getElementById('attemptCount').textContent = "Versuche: " + guessHistory.length;
+    }
+
+    // Überprüft den Tipp und markiert Buchstaben
+    function checkGuess(guess, solution) {
+      const result = [];
+      const solutionArray = solution.split('');
+      // Zuerst: Richtige Buchstaben an richtiger Stelle (Grün)
+      for (let i = 0; i < guess.length; i++) {
+        if (guess[i] === solutionArray[i]) {
+          result.push({letter: guess[i], color: "var(--letter-green)"});
+          solutionArray[i] = null;
+        } else {
+          result.push({letter: guess[i], color: null});
+        }
+      }
+      // Zweitens: Richtige Buchstaben an falscher Stelle (Gelb) oder rot, falls nicht vorhanden
+      for (let i = 0; i < guess.length; i++) {
+        if (result[i].color === null) {
+          const pos = solutionArray.indexOf(guess[i]);
+          if (pos !== -1) {
+            result[i].color = "var(--letter-yellow)";
+            solutionArray[pos] = null;
+          } else {
+            result[i].color = "var(--letter-red)";
+          }
+        }
+      }
+      return result;
+    }
+
+    // Aktualisiert die Historie (letzte 5 Versuche)
+    function updateHistory() {
+      const historyDiv = document.getElementById('history');
+      historyDiv.innerHTML = "";
+      const recentGuesses = guessHistory.slice(-5);
+      recentGuesses.forEach(guessResult => {
+        const row = document.createElement('div');
+        row.className = 'guessRow';
+        guessResult.forEach(item => {
+          const letterDiv = document.createElement('div');
+          letterDiv.className = 'letter';
+          letterDiv.textContent = item.letter;
+          letterDiv.style.backgroundColor = item.color;
+          row.appendChild(letterDiv);
+        });
+        historyDiv.appendChild(row);
+      });
+    }
+
+    // Lädt den gespeicherten Spielstand beim Start
+    loadGameState();
+
+    // Event-Listener für den Senden-Button
+    document.getElementById('submitBtn').addEventListener('click', () => {
+      const guessInput = document.getElementById('guessInput');
+      const errorMessage = document.getElementById('errorMessage');
+      const successMessage = document.getElementById('successMessage');
+      const guess = guessInput.value.trim().toLowerCase();
+      
+      // Falls Eingabe nicht 5 Buchstaben lang ist:
+      if (guess.length !== 5) {
+        errorMessage.textContent = "Bitte gib ein 5-Buchstaben-Wort ein.";
+        return;
+      }
+      
+      // Prüfe, ob das eingegebene Wort in der geladenen Wörterliste oder in der wordList vorhanden ist
+      if (!dictionary.has(guess) && !wordList.includes(guess)) {
+        errorMessage.textContent = "Das Wort ist nicht in der Wörterliste.";
+        return;
+      }
+      
+      // Eingabe ist gültig – Fehlermeldung zurücksetzen und Spiel fortführen:
+      errorMessage.textContent = "";
+      const result = checkGuess(guess, solution);
+      guessHistory.push(result);
+      updateAttemptCount();
+      updateHistory();
+      // Speichere den aktuellen Spielstand
+      saveGameState();
+      
+      // Falls das Lösungswort erraten wurde, Score speichern und Glückwunsch anzeigen
+      if (guess === solution) {
+        saveScore(guessHistory.length);
+        successMessage.textContent = "Herzlichen Glückwunsch, korrekt gelöst! Schau morgen gerne wieder vorbei.";
+      }
+      
+      guessInput.value = "";
+    });
+
+    // Ermöglicht das Drücken der Enter-Taste
+    document.getElementById('guessInput').addEventListener('keyup', (e) => {
+      if (e.key === "Enter") {
+        document.getElementById('submitBtn').click();
+      }
+    });
+    
+    // Öffnet das Modal beim Klicken auf das Info Icon
+    document.getElementById("info-icon").addEventListener("click", function(){
+      document.getElementById("info-modal").style.display = "block";
+    });
+    
+    // Schließt das Modal beim Klicken auf das Schließen-Symbol
+    document.getElementsByClassName("close")[0].addEventListener("click", function(){
+      document.getElementById("info-modal").style.display = "none";
+    });
+    
+    // Schließt das Modal, wenn außerhalb des Modal-Contents geklickt wird
+    window.addEventListener("click", function(event){
+      if(event.target == document.getElementById("info-modal")){
+        document.getElementById("info-modal").style.display = "none";
+      }
+    });
+    
+  </script>
+</body>
+</html>
