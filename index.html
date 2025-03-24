@@ -2,27 +2,64 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <title>Uno mit Drag & Drop und Bildkarten</title>
+  <title>Uno</title>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
   <style>
+    /* Gesamte Seite im dunklen, minimalistischen Stil */
     body {
       margin: 0;
       padding: 0;
-      background: #2d2d2d;
-      font-family: Arial, sans-serif;
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      background: #1c1c1e;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #eee;
+      overflow: hidden;
     }
+    
+    /* Container für das Spiel mit modernem Look */
     #game-container {
-      border: 2px solid #fff;
-      background: #1d1d1d;
+      border: none;
+      background: #2c2c2e;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+      margin: 50px auto;
+      position: relative;
+      width: 800px;
+      height: 600px;
+    }
+    
+    /* Der kleine rote Punkt oben links */
+    .home-link {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 16px;
+      height: 16px;
+      background: #ff3b30;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    }
+    
+    /* Zusätzliche Texte und Buttons im Apple-Stil */
+    .button {
+      font-size: 20px;
+      background-color: #3a3a3c;
+      padding: 8px 12px;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      user-select: none;
+    }
+    .button:hover {
+      background-color: #4a4a4c;
     }
   </style>
 </head>
 <body>
+  <!-- Roter Punkt als Home-Button -->
+  <a href="index.html" class="home-link"></a>
+
   <div id="game-container"></div>
 
   <script>
@@ -82,12 +119,13 @@
 
       drawDiscardPile(this);
 
+      // Bot-Rahmen im dezenten Stil
       for (let i = 1; i < 4; i++) {
-        this.add.rectangle(positions[i].x, positions[i].y, 180, 100, 0x333333)
-          .setStrokeStyle(2, currentPlayer === i ? 0xffff00 : 0xffffff)
+        this.add.rectangle(positions[i].x, positions[i].y, 180, 100, 0x444444)
+          .setStrokeStyle(2, currentPlayer === i ? 0xffcc00 : 0xaaaaaa)
           .setName(`botFrame${i}`);
-        this.add.text(positions[i].x - 70, positions[i].y - 40, 'Bot ' + i, { fontSize: '16px', fill: '#fff' });
-        this.add.text(positions[i].x - 70, positions[i].y, 'Karten: ' + players[i].length, { fontSize: '14px', fill: '#fff' })
+        this.add.text(positions[i].x - 70, positions[i].y - 40, 'Bot ' + i, { fontSize: '16px', fill: '#eee' });
+        this.add.text(positions[i].x - 70, positions[i].y, 'Karten: ' + players[i].length, { fontSize: '14px', fill: '#eee' })
           .setName(`botCount${i}`);
       }
 
@@ -99,6 +137,7 @@
         createDrawButton(this);
       }
 
+      // DropZone als transparenter Rahmen
       const dz = this.add.rectangle(dropZone.x, dropZone.y, dropZone.width, dropZone.height, 0xffffff, 0.1);
       dz.setStrokeStyle(2, 0xffffff);
 
@@ -199,7 +238,7 @@
     }
 
     function createDrawButton(scene) {
-      drawButton = scene.add.text(510, 260, 'Karte ziehen', { fontSize: '20px', backgroundColor: '#555', padding: { x: 10, y: 5 } })
+      drawButton = scene.add.text(510, 260, 'Karte ziehen', { fontSize: '20px', backgroundColor: '#3a3a3c', padding: { x: 10, y: 5 } })
         .setInteractive()
         .on('pointerdown', () => {
           if (deck.length > 0) {
@@ -228,7 +267,7 @@
 
     function highlightActivePlayer(scene) {
       scene.add.rectangle(positions[0].x, positions[0].y, 200, 140)
-        .setStrokeStyle(2, 0xffff00, 0.3)
+        .setStrokeStyle(2, 0xffcc00, 0.3)
         .setDepth(-1)
         .setOrigin(0.5);
     }
@@ -237,7 +276,7 @@
       for (let i = 0; i < players.length; i++) {
         if (players[i].length === 0) {
           scene.add.text(300, 280, i === 0 ? 'Du hast gewonnen!' : 'Bot ' + i + ' hat gewonnen!', { fontSize: '24px', fill: '#0f0' });
-          scene.add.text(300, 320, 'Neustarten', { fontSize: '20px', backgroundColor: '#444', padding: { x: 10, y: 5 } })
+          scene.add.text(300, 320, 'Neustarten', { fontSize: '20px', backgroundColor: '#3a3a3c', padding: { x: 10, y: 5 } })
             .setInteractive()
             .on('pointerdown', () => {
               deck = [];
@@ -255,7 +294,7 @@
       // Bot-Rahmen aktualisieren
       for (let i = 1; i < 4; i++) {
         const frame = scene.children.getByName(`botFrame${i}`);
-        if (frame) frame.setStrokeStyle(2, currentPlayer === i ? 0xffff00 : 0xffffff);
+        if (frame) frame.setStrokeStyle(2, currentPlayer === i ? 0xffcc00 : 0xaaaaaa);
       }
 
       if (currentPlayer === 0) {
