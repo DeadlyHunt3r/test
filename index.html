@@ -9,22 +9,22 @@
     body {
       margin: 0;
       padding: 0;
-      background: #1c1c1e;
+      background: linear-gradient(135deg, #1c1c1e, #2c2c2e);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       color: #eee;
       overflow: hidden;
     }
     
-    /* Container für das Spiel mit modernem Look */
+    /* Größerer und moderner Container für das Spiel */
     #game-container {
       border: none;
       background: #2c2c2e;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
-      margin: 50px auto;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      margin: 30px auto;
       position: relative;
-      width: 800px;
-      height: 600px;
+      width: 1200px;
+      height: 800px;
     }
     
     /* Der kleine rote Punkt oben links */
@@ -65,8 +65,8 @@
   <script>
     const config = {
       type: Phaser.AUTO,
-      width: 800,
-      height: 600,
+      width: 1200,
+      height: 800,
       parent: 'game-container',
       scene: {
         preload: preload,
@@ -87,13 +87,18 @@
 
     const colors = ['Rot', 'Gelb', 'Grün', 'Blau'];
     const numbers = ['0','1','2','3','4','5','6','7','8','9'];
+    // Angepasste Positionen für ein größeres Spielfeld
     const positions = [
-      { x: 400, y: 520 },
-      { x: 100, y: 80 },
-      { x: 700, y: 80 },
-      { x: 400, y: 80 }
+      { x: 600, y: 720 }, // Spieler unten
+      { x: 150, y: 100 }, // Bot 1 links oben
+      { x: 1050, y: 100 }, // Bot 2 rechts oben
+      { x: 600, y: 100 }  // Bot 3 Mitte oben
     ];
-    const dropZone = { x: 400, y: 300, width: 120, height: 160 };
+    // DropZone in der Mitte des Spielfelds
+    const dropZone = { x: 600, y: 400, width: 140, height: 180 };
+
+    // Eigene Bot-Namen
+    const botNames = ["Alice", "Bob", "Charlie"];
 
     function preload() {
       // Kartenbilder laden
@@ -103,6 +108,10 @@
           this.load.image(key, `assets/cards/${key}.png`);
         }
       }
+      // Profilbilder für die Bots laden (sicherstellen, dass diese Bilder in assets/ vorhanden sind)
+      this.load.image('botProfile1', 'assets/bot1.png');
+      this.load.image('botProfile2', 'assets/bot2.png');
+      this.load.image('botProfile3', 'assets/bot3.png');
     }
 
     function create() {
@@ -119,27 +128,38 @@
 
       drawDiscardPile(this);
 
-      // Bot-Rahmen im dezenten Stil
+      // Bot-Rahmen inkl. Profilbild, Name und Kartenanzahl innerhalb des Rahmens
       for (let i = 1; i < 4; i++) {
-        this.add.rectangle(positions[i].x, positions[i].y, 180, 100, 0x444444)
-          .setStrokeStyle(2, currentPlayer === i ? 0xffcc00 : 0xaaaaaa)
+        // Rahmen zeichnen
+        this.add.rectangle(positions[i].x, positions[i].y, 220, 120, 0x444444)
+          .setStrokeStyle(3, currentPlayer === i ? 0xffcc00 : 0xaaaaaa)
           .setName(`botFrame${i}`);
-        this.add.text(positions[i].x - 70, positions[i].y - 40, 'Bot ' + i, { fontSize: '16px', fill: '#eee' });
-        this.add.text(positions[i].x - 70, positions[i].y, 'Karten: ' + players[i].length, { fontSize: '14px', fill: '#eee' })
+        // Profilbild innerhalb des Rahmens (oberer Bereich)
+        this.add.image(positions[i].x, positions[i].y - 20, `botProfile${i}`)
+          .setDisplaySize(40, 40);
+        // Bot-Name unterhalb der Mitte (mittig ausgerichtet)
+        this.add.text(positions[i].x, positions[i].y + 10, botNames[i - 1], { fontSize: '18px', fill: '#eee' })
+          .setOrigin(0.5);
+        // Kartenanzahl unterhalb des Namens
+        this.add.text(positions[i].x, positions[i].y + 30, 'Karten: ' + players[i].length, { fontSize: '16px', fill: '#eee' })
+          .setOrigin(0.5)
           .setName(`botCount${i}`);
       }
 
       highlightActivePlayer(this);
       drawPlayerHand(this);
 
+      // Nur Spieler am Zug erhält Eingabesteuerung und den Draw-Button
       if (currentPlayer === 0) {
         activatePlayerInput(this);
         createDrawButton(this);
+      } else {
+        deactivatePlayerInput(this);
       }
 
-      // DropZone als transparenter Rahmen
+      // DropZone als transparenter Rahmen in der Mitte
       const dz = this.add.rectangle(dropZone.x, dropZone.y, dropZone.width, dropZone.height, 0xffffff, 0.1);
-      dz.setStrokeStyle(2, 0xffffff);
+      dz.setStrokeStyle(3, 0xffffff);
 
       this.input.on('wheel', (pointer, gameObjects, dx, dy) => {
         scrollOffset -= dy * 0.1;
@@ -176,7 +196,7 @@
       cardSprites = [];
 
       const hand = players[0];
-      const startX = 200 + scrollOffset;
+      const startX = 350 + scrollOffset;
       const gap = 100;
 
       hand.forEach((card, index) => {
@@ -212,17 +232,21 @@
       });
 
       scene.input.on('dragstart', (pointer, gameObject) => {
+        if (currentPlayer !== 0) return;
         gameObject.setScale(1.1);
       });
       scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+        if (currentPlayer !== 0) return;
         gameObject.x = dragX;
         gameObject.y = dragY;
       });
       scene.input.on('dragend', (pointer, gameObject) => {
+        if (currentPlayer !== 0) return;
         gameObject.setScale(1);
         if (Phaser.Geom.Rectangle.ContainsPoint(
           new Phaser.Geom.Rectangle(dropZone.x - dropZone.width/2, dropZone.y - dropZone.height/2, dropZone.width, dropZone.height),
-          { x: gameObject.x, y: gameObject.y })) {
+          { x: gameObject.x, y: gameObject.y }
+        )) {
           if (isPlayable(gameObject.card)) {
             playPlayerCard(gameObject.card);
             gameObject.destroy();
@@ -237,8 +261,15 @@
       });
     }
 
+    function deactivatePlayerInput(scene) {
+      cardSprites.forEach(cardContainer => {
+        cardContainer.disableInteractive();
+      });
+    }
+
     function createDrawButton(scene) {
-      drawButton = scene.add.text(510, 260, 'Karte ziehen', { fontSize: '20px', backgroundColor: '#3a3a3c', padding: { x: 10, y: 5 } })
+      // Button links außerhalb der Dropzone positioniert
+      drawButton = scene.add.text(100, 600, 'Karte ziehen', { fontSize: '24px', backgroundColor: '#3a3a3c', padding: { x: 12, y: 8 } })
         .setInteractive()
         .on('pointerdown', () => {
           if (deck.length > 0) {
@@ -265,18 +296,23 @@
       }
     }
 
+    // Spieler-Rahmen: Nur ein transparenter Rahmen mit halbtransparentem Strich
     function highlightActivePlayer(scene) {
-      scene.add.rectangle(positions[0].x, positions[0].y, 200, 140)
-        .setStrokeStyle(2, 0xffcc00, 0.3)
-        .setDepth(-1)
-        .setOrigin(0.5);
-    }
+	// Rahmen nur für Bots (oder andere Spieler), nicht für den menschlichen Spieler
+	if (currentPlayer !== 0) {
+		scene.add.rectangle(positions[0].x, positions[0].y, 260, 160)
+		.setStrokeStyle(3, 0xffcc00, 0.3)
+		.setDepth(-1)
+		.setOrigin(0.5);
+  }
+}
 
     function nextTurn(scene) {
+      // Gewinnprüfung
       for (let i = 0; i < players.length; i++) {
         if (players[i].length === 0) {
-          scene.add.text(300, 280, i === 0 ? 'Du hast gewonnen!' : 'Bot ' + i + ' hat gewonnen!', { fontSize: '24px', fill: '#0f0' });
-          scene.add.text(300, 320, 'Neustarten', { fontSize: '20px', backgroundColor: '#3a3a3c', padding: { x: 10, y: 5 } })
+          scene.add.text(500, 380, i === 0 ? 'Du hast gewonnen!' : botNames[i - 1] + ' hat gewonnen!', { fontSize: '32px', fill: '#0f0' });
+          scene.add.text(500, 430, 'Neustarten', { fontSize: '28px', backgroundColor: '#3a3a3c', padding: { x: 12, y: 8 } })
             .setInteractive()
             .on('pointerdown', () => {
               deck = [];
@@ -289,19 +325,28 @@
         }
       }
 
+      // Nächster Zug
       currentPlayer = (currentPlayer + 1) % 4;
 
-      // Bot-Rahmen aktualisieren
+      // Aktualisierung der Bot-Rahmen und Kartenanzahl
       for (let i = 1; i < 4; i++) {
         const frame = scene.children.getByName(`botFrame${i}`);
-        if (frame) frame.setStrokeStyle(2, currentPlayer === i ? 0xffcc00 : 0xaaaaaa);
+        if (frame) frame.setStrokeStyle(3, currentPlayer === i ? 0xffcc00 : 0xaaaaaa);
+        
+        const countText = scene.children.getByName(`botCount${i}`);
+        if (countText) {
+          countText.setText('Karten: ' + players[i].length);
+        }
       }
 
+      // Spielerzug: Eingaben aktivieren und Button anzeigen
       if (currentPlayer === 0) {
         drawPlayerHand(scene);
         highlightActivePlayer(scene);
+        activatePlayerInput(scene);
         createDrawButton(scene);
       } else {
+        deactivatePlayerInput(scene);
         scene.time.delayedCall(2000, () => botTurn(scene), [], scene);
       }
 
