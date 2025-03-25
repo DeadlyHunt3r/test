@@ -89,13 +89,13 @@
     const numbers = ['0','1','2','3','4','5','6','7','8','9'];
     // Angepasste Positionen für ein größeres Spielfeld
     const positions = [
-      { x: 600, y: 720 }, // Spieler unten
+      { x: 600, y: 700 }, // Spieler unten
       { x: 150, y: 100 }, // Bot 1 links oben
       { x: 1050, y: 100 }, // Bot 2 rechts oben
       { x: 600, y: 100 }  // Bot 3 Mitte oben
     ];
     // DropZone in der Mitte des Spielfelds
-    const dropZone = { x: 600, y: 400, width: 140, height: 180 };
+    const dropZone = { x: 600, y: 400, width: 160, height: 210 };
 
     // Eigene Bot-Namen
     const botNames = ["Alice", "Bob", "Charlie"];
@@ -197,7 +197,7 @@
 
       const hand = players[0];
       const startX = 350 + scrollOffset;
-      const gap = 110;
+      const gap = 125;
 
       hand.forEach((card, index) => {
         let x = startX + index * gap;
@@ -205,8 +205,8 @@
         let cardContainer = createCardContainer(scene, card, x, y);
         cardContainer.originalX = x;
         cardContainer.originalY = y;
-        cardContainer.setSize(100, 150);
-        cardContainer.setInteractive(new Phaser.Geom.Rectangle(0, 0, 100, 150), Phaser.Geom.Rectangle.Contains);
+        cardContainer.setSize(120, 180);
+        cardContainer.setInteractive(new Phaser.Geom.Rectangle(0, 0, 120, 180), Phaser.Geom.Rectangle.Contains);
         scene.input.setDraggable(cardContainer);
         cardContainer.card = card;
         cardSprites.push(cardContainer);
@@ -215,7 +215,7 @@
 
     function createCardContainer(scene, card, x, y) {
       let key = `${card.color}_${card.value}`;
-      let sprite = scene.add.image(0, 0, key).setDisplaySize(100, 150);
+      let sprite = scene.add.image(0, 0, key).setDisplaySize(120, 180);
       let container = scene.add.container(x, y, [sprite]);
       return container;
     }
@@ -269,7 +269,7 @@
 
     function createDrawButton(scene) {
       // Button links außerhalb der Dropzone positioniert
-      drawButton = scene.add.text(100, 600, 'Karte ziehen', { fontSize: '24px', backgroundColor: '#3a3a3c', padding: { x: 12, y: 8 } })
+      drawButton = scene.add.text(100, 550, 'Karte ziehen', { fontSize: '24px', backgroundColor: '#3a3a3c', padding: { x: 12, y: 8 } })
         .setInteractive()
         .on('pointerdown', () => {
           if (deck.length > 0) {
