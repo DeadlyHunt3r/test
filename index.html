@@ -354,18 +354,26 @@
     }
 
     function botTurn(scene) {
-      let botCards = players[currentPlayer];
-      let playableIndex = botCards.findIndex(isPlayable);
-      if (playableIndex !== -1) {
-        let card = botCards.splice(playableIndex, 1)[0];
-        discardPile.push(card);
-      } else {
-        if (deck.length > 0) {
-          botCards.push(deck.pop());
-        }
-      }
-      nextTurn(scene);
+  let botCards = players[currentPlayer];
+  console.log("Bot's Hand:", botCards);
+  let playableIndex = botCards.findIndex(isPlayable);
+  if (playableIndex !== -1) {
+    let card = botCards.splice(playableIndex, 1)[0];
+    console.log("Bot spielt:", card);
+    discardPile.push(card);
+  } else {
+    if (deck.length > 0) {
+      let drawnCard = deck.pop();
+      console.log("Bot zieht:", drawnCard);
+      botCards.push(drawnCard);
+    } else {
+      console.log("Deck ist leer, Bot kann nichts tun!");
+      // Optional: Hier könnte man den Ablagestapel mischen, um das Deck wieder aufzufüllen.
     }
+  }
+  nextTurn(scene);
+}
+
   </script>
 </body>
 </html>
