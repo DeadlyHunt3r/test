@@ -85,7 +85,7 @@
     let drawButton;
     let scrollOffset = 0;
 
-    const colors = ['Rot', 'Gelb', 'Grün', 'Blau'];
+    const colors = ['rot', 'gelb', 'grün', 'blau'];
     const numbers = ['0','1','2','3','4','5','6','7','8','9'];
     // Angepasste Positionen für ein größeres Spielfeld
     const positions = [
@@ -197,7 +197,7 @@
 
       const hand = players[0];
       const startX = 350 + scrollOffset;
-      const gap = 100;
+      const gap = 110;
 
       hand.forEach((card, index) => {
         let x = startX + index * gap;
@@ -205,8 +205,8 @@
         let cardContainer = createCardContainer(scene, card, x, y);
         cardContainer.originalX = x;
         cardContainer.originalY = y;
-        cardContainer.setSize(80, 120);
-        cardContainer.setInteractive(new Phaser.Geom.Rectangle(0, 0, 80, 120), Phaser.Geom.Rectangle.Contains);
+        cardContainer.setSize(100, 150);
+        cardContainer.setInteractive(new Phaser.Geom.Rectangle(0, 0, 100, 150), Phaser.Geom.Rectangle.Contains);
         scene.input.setDraggable(cardContainer);
         cardContainer.card = card;
         cardSprites.push(cardContainer);
@@ -215,7 +215,7 @@
 
     function createCardContainer(scene, card, x, y) {
       let key = `${card.color}_${card.value}`;
-      let sprite = scene.add.image(0, 0, key).setDisplaySize(80, 120);
+      let sprite = scene.add.image(0, 0, key).setDisplaySize(100, 150);
       let container = scene.add.container(x, y, [sprite]);
       return container;
     }
