@@ -80,7 +80,9 @@
     let players = [];
     let currentPlayer = 0;
     let deck = [];
-    let discardPile = [];
+    // Entferne den discardPile, da wir stattdessen currentCard nutzen:
+    // let discardPile = [];
+    let currentCard;
     let cardSprites = [];
     let drawButton;
     let scrollOffset = 0;
@@ -120,13 +122,15 @@
       if (deck.length === 0) {
         deck = createDeck();
         Phaser.Utils.Array.Shuffle(deck);
+        // Statt den discardPile zu nutzen, holen wir die Startkarte direkt aus dem Deck
+        currentCard = deck.pop();
+        // Jede:r Spieler:in erhält 7 Karten
         for (let i = 0; i < 4; i++) {
           players[i] = deck.splice(0, 7);
         }
-        discardPile.push(deck.pop());
       }
 
-      drawDiscardPile(this);
+      drawCurrentCard(this);
 
       // Bot-Rahmen inkl. Profilbild, Name und Kartenanzahl innerhalb des Rahmens
       for (let i = 1; i < 4; i++) {
@@ -184,11 +188,11 @@
       return newDeck;
     }
 
-    function drawDiscardPile(scene) {
-      scene.children.list.filter(child => child.discardPile).forEach(child => child.destroy());
-      let topCard = discardPile[discardPile.length - 1];
-      let container = createCardContainer(scene, topCard, dropZone.x, dropZone.y);
-      container.discardPile = true;
+    // Zeichnet die aktuelle Karte in der DropZone
+    function drawCurrentCard(scene) {
+      scene.children.list.filter(child => child.currentCard).forEach(child => child.destroy());
+      let container = createCardContainer(scene, currentCard, dropZone.x, dropZone.y);
+      container.currentCard = true;
     }
 
     function drawPlayerHand(scene) {
@@ -220,9 +224,9 @@
       return container;
     }
 
+    // Vergleicht die Karte mit der aktuellen Karte, nicht mehr mit einem Ablagestapel
     function isPlayable(card) {
-      let topCard = discardPile[discardPile.length - 1];
-      return (card.color === topCard.color || card.value === topCard.value);
+      return (card.color === currentCard.color || card.value === currentCard.value);
     }
 
     function activatePlayerInput(scene) {
@@ -268,13 +272,16 @@
     }
 
     function createDrawButton(scene) {
-      // Button links außerhalb der Dropzone positioniert
+      // Button links außerhalb der DropZone positioniert
       drawButton = scene.add.text(100, 550, 'Karte ziehen', { fontSize: '24px', backgroundColor: '#3a3a3c', padding: { x: 12, y: 8 } })
         .setInteractive()
         .on('pointerdown', () => {
+          refillDeckIfEmpty();
           if (deck.length > 0) {
             let newCard = deck.pop();
             players[0].push(newCard);
+          } else {
+            console.log("Kein Zug möglich – Deck ist leer!");
           }
           removeDrawButton();
           nextTurn(scene);
@@ -288,24 +295,27 @@
       }
     }
 
+    // Spielzug des Spielers: Gespielte Karte wird als aktuelle Karte gespeichert und sofort wieder in den Deck gelegt.
     function playPlayerCard(card) {
       const index = players[0].findIndex(c => c.color === card.color && c.value === card.value);
       if (index !== -1) {
         players[0].splice(index, 1);
-        discardPile.push(card);
+        currentCard = card;      // Setze die gespielte Karte als aktuelle Karte
+        deck.push(card);         // Lege die Karte direkt in den Nachziehstapel
+        drawCurrentCard(game.scene.scenes[0]);
       }
     }
 
     // Spieler-Rahmen: Nur ein transparenter Rahmen mit halbtransparentem Strich
     function highlightActivePlayer(scene) {
-	// Rahmen nur für Bots (oder andere Spieler), nicht für den menschlichen Spieler
-	if (currentPlayer !== 0) {
-		scene.add.rectangle(positions[0].x, positions[0].y, 260, 160)
-		.setStrokeStyle(3, 0xffcc00, 0.3)
-		.setDepth(-1)
-		.setOrigin(0.5);
-  }
-}
+      // Rahmen nur für Bots (oder andere Spieler), nicht für den menschlichen Spieler
+      if (currentPlayer !== 0) {
+        scene.add.rectangle(positions[0].x, positions[0].y, 260, 160)
+          .setStrokeStyle(3, 0xffcc00, 0.3)
+          .setDepth(-1)
+          .setOrigin(0.5);
+      }
+    }
 
     function nextTurn(scene) {
       // Gewinnprüfung
@@ -316,7 +326,7 @@
             .setInteractive()
             .on('pointerdown', () => {
               deck = [];
-              discardPile = [];
+              // discardPile wird nicht mehr benötigt
               players = [];
               currentPlayer = 0;
               scene.scene.restart();
@@ -350,30 +360,50 @@
         scene.time.delayedCall(2000, () => botTurn(scene), [], scene);
       }
 
-      drawDiscardPile(scene);
+      drawCurrentCard(scene);
     }
 
     function botTurn(scene) {
-  let botCards = players[currentPlayer];
-  console.log("Bot's Hand:", botCards);
-  let playableIndex = botCards.findIndex(isPlayable);
-  if (playableIndex !== -1) {
-    let card = botCards.splice(playableIndex, 1)[0];
-    console.log("Bot spielt:", card);
-    discardPile.push(card);
-  } else {
-    if (deck.length > 0) {
-      let drawnCard = deck.pop();
-      console.log("Bot zieht:", drawnCard);
-      botCards.push(drawnCard);
-    } else {
-      console.log("Deck ist leer, Bot kann nichts tun!");
-      // Optional: Hier könnte man den Ablagestapel mischen, um das Deck wieder aufzufüllen.
+      let botCards = players[currentPlayer];
+      console.log("Bot's Hand:", botCards);
+      let playableIndex = botCards.findIndex(isPlayable);
+      if (playableIndex !== -1) {
+        let card = botCards.splice(playableIndex, 1)[0];
+        currentCard = card;
+        deck.push(card);
+        drawCurrentCard(scene);
+      } else {
+        refillDeckIfEmpty();
+        if (deck.length > 0) {
+          let drawnCard = deck.pop();
+          console.log("Bot zieht:", drawnCard);
+          botCards.push(drawnCard);
+        } else {
+          console.log("Deck ist leer, Bot kann nichts tun!");
+        }
+      }
+      nextTurn(scene);
     }
-  }
-  nextTurn(scene);
-}
 
+    // Funktion zum Auffüllen des Decks, wenn es leer ist
+    function refillDeckIfEmpty() {
+      if (deck.length === 0) {
+        // Erstelle ein vollständiges Deck
+        let allCards = createDeck();
+        // Entferne alle Karten, die sich in den Händen der Spieler befinden
+        for (let hand of players) {
+          hand.forEach(card => {
+            let idx = allCards.findIndex(c => c.color === card.color && c.value === card.value);
+            if (idx !== -1) allCards.splice(idx, 1);
+          });
+        }
+        // Entferne die aktuelle Karte, damit sie als Referenz bleibt
+        let idx = allCards.findIndex(c => c.color === currentCard.color && c.value === currentCard.value);
+        if (idx !== -1) allCards.splice(idx, 1);
+        // Mische das verbleibende Kartenset und setze es als neues Deck ein
+        deck = Phaser.Utils.Array.Shuffle(allCards);
+      }
+    }
   </script>
 </body>
 </html>
