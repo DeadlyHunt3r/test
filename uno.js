@@ -16,7 +16,7 @@ let players = [];
 let currentPlayer = 0;
 let deck = [];          // Ziehstapel
 let discardPile = [];   // Ablagestapel (gelegte Karten)
-let currentCard;        // Aktuell aufgedeckte Karte (liegt auf dem Tisch)
+let currentCard;        // Aktuell aufgedeckte Karte
 let cardSprites = [];
 let drawButton;
 let scrollOffset = 0;
@@ -33,7 +33,7 @@ const positions = [
   { x: 600, y: 100 }, // Bot 2 rechts oben
   { x: 1050, y: 100 }  // Bot 3 Mitte oben
 ];
-// DropZone in der Mitte des Spielfelds
+// DropZone in der Mitte
 const dropZone = { x: 600, y: 400, width: 160, height: 210 };
 
 // Eigene Bot-Namen
@@ -52,7 +52,7 @@ function preload() {
     let key = `${color}_+2`;
     this.load.image(key, `assets/cards/${key}.png`);
   }
-  // Profilbilder für die Bots
+  // Profilbilder für die Bots laden
   this.load.image('botProfile1', 'assets/bot1.png');
   this.load.image('botProfile2', 'assets/bot2.png');
   this.load.image('botProfile3', 'assets/bot3.png');
@@ -109,7 +109,7 @@ function create() {
     drawPlayerHand(this);
   });
 
-  // Startet den Botzug, falls der aktuelle Spieler ein Bot ist
+  // Falls aktueller Spieler ein Bot ist, starte dessen Zug
   if (currentPlayer !== 0) {
     this.time.delayedCall(2000, () => botTurn(this), [], this);
   }
@@ -117,7 +117,7 @@ function create() {
 
 function update() {}
 
-// Erzeugt ein vollständiges Kartendeck (Zahlen + je 2x +2)
+// Erzeugt ein vollständiges Deck (Zahlenkarten + je 2x +2-Karten)
 function createDeck() {
   let newDeck = [];
   for (let color of colors) {
@@ -139,15 +139,13 @@ function drawCurrentCard(scene) {
   container.currentCard = true;
 }
 
-// Zeichnet die Hand des Spielers
+// Zeichnet die Hand des menschlichen Spielers
 function drawPlayerHand(scene) {
   cardSprites.forEach(cs => cs.destroy());
   cardSprites = [];
-
   const hand = players[0];
   const startX = 350 + scrollOffset;
   const gap = 125;
-
   hand.forEach((card, index) => {
     let x = startX + index * gap;
     let y = positions[0].y;
@@ -170,9 +168,12 @@ function createCardContainer(scene, card, x, y) {
   return container;
 }
 
-/* Spielregeln: Eine +2-Karte darf nur gespielt werden,
-   wenn entweder die aktuelle Karte ebenfalls eine +2 ist oder die Farben übereinstimmen.
-   Bei einem aktiven Strafstapel (plusTwoStack > 0) dürfen nur +2-Karten gespielt werden. */
+/* 
+  Spielregeln für +2-Karten:
+  - Eine +2-Karte darf nur gespielt werden, wenn entweder die aktuelle Karte ebenfalls +2 ist
+    oder die Farben übereinstimmen.
+  - Bei aktivem Strafstapel (plusTwoStack > 0) dürfen nur +2-Karten gespielt werden.
+*/
 function isPlayable(card) {
   if (plusTwoStack > 0) {
     if (card.value !== "+2") return false;
@@ -230,14 +231,13 @@ function deactivatePlayerInput(scene) {
 }
 
 /* Erstellt den Draw-Button.
-   Der Button-Text ändert sich, wenn Strafkarten gezogen werden müssen. */
+   Der Button-Text passt sich an, falls Strafkarten gezogen werden müssen. */
 function createDrawButton(scene) {
   let buttonText = plusTwoStack > 0 ? 'Strafkarten ziehen' : 'Karte ziehen';
   drawButton = scene.add.text(100, 550, buttonText, { fontSize: '24px', backgroundColor: '#3a3a3c', padding: { x: 12, y: 8 } })
     .setInteractive()
     .on('pointerdown', () => {
       if (plusTwoStack > 0) {
-        // Sicherstellen, dass genug Karten vorhanden sind, um die Strafkarten zu ziehen
         ensureDeck(plusTwoStack);
         for (let i = 0; i < plusTwoStack; i++) {
           if (deck.length > 0) {
@@ -266,14 +266,13 @@ function removeDrawButton() {
   }
 }
 
-/* Wenn ein Spieler eine Karte legt, wird sie in den Ablagestapel verschoben.
-   Spielt der Spieler eine +2, wird auch der Strafstapel erhöht. */
+/* Legt eine Karte ab, verschiebt sie in den Ablagestapel und aktualisiert currentCard.
+   Bei einer +2-Karte wird der Strafstapel erhöht. */
 function playPlayerCard(card) {
   const index = players[0].findIndex(c => c.color === card.color && c.value === card.value);
   if (index !== -1) {
     players[0].splice(index, 1);
     currentCard = card;
-    // Gelegte Karte in den Ablagestapel verschieben
     discardPile.push(card);
     if (card.value === "+2") {
       plusTwoStack += 2;
@@ -292,22 +291,27 @@ function highlightActivePlayer(scene) {
   }
 }
 
-/* Prüft, ob ein Spieler gewonnen hat; sonst wird zum nächsten Spieler gewechselt.
-   Vor dem Ziehen von Karten wird mittels ensureDeck(count) überprüft, ob genügend Karten im Ziehstapel sind. */
+/* 
+  Prüft, ob vor dem Ziehen genügend Karten im deck sind.
+  Falls nicht, werden alle abgelegten Karten (discardPile) gemischt und in den deck übernommen.
+*/
+function ensureDeck(count) {
+  if (deck.length < count && discardPile.length > 0) {
+    deck = deck.concat(Phaser.Utils.Array.Shuffle(discardPile));
+    discardPile = [];
+  }
+}
+
+/* 
+  Wechselt zum nächsten Spieler und prüft, ob jemand gewonnen hat.
+  Wird ein Spieler mit 0 Karten festgestellt, wird das Gewinnmodal angezeigt.
+*/
 function nextTurn(scene) {
+  // Gewinnbedingung prüfen
   for (let i = 0; i < players.length; i++) {
     if (players[i].length === 0) {
-      scene.add.text(500, 380, i === 0 ? 'Du hast gewonnen!' : botNames[i - 1] + ' hat gewonnen!', { fontSize: '32px', fill: '#0f0' });
-      scene.add.text(500, 430, 'Neustarten', { fontSize: '28px', backgroundColor: '#3a3a3c', padding: { x: 12, y: 8 } })
-        .setInteractive()
-        .on('pointerdown', () => {
-          deck = [];
-          discardPile = [];
-          players = [];
-          currentPlayer = 0;
-          plusTwoStack = 0;
-          scene.scene.restart();
-        });
+      let winnerText = i === 0 ? 'Du hast gewonnen!' : botNames[i - 1] + ' hat gewonnen!';
+      showWinModal(scene, winnerText);
       return;
     }
   }
@@ -315,7 +319,7 @@ function nextTurn(scene) {
   // Wechsle zum nächsten Spieler
   currentPlayer = (currentPlayer + 1) % 4;
 
-  // Aktualisiere die UI bei den Bots
+  // Update UI der Bot-Rahmen und Kartenzähler
   for (let i = 1; i < 4; i++) {
     const frame = scene.children.getByName(`botFrame${i}`);
     if (frame) frame.setStrokeStyle(3, currentPlayer === i ? 0xffcc00 : 0xaaaaaa);
@@ -340,8 +344,10 @@ function nextTurn(scene) {
 }
 
 /* Bot-Logik.
-   Zuerst wird geprüft, ob ein Strafstapel aktiv ist. Falls ja, versucht der Bot, eine +2 zu spielen.
-   Besitzt er keine, zieht er alle Strafkarten. */
+   - Falls plusTwoStack aktiv ist, versucht der Bot, eine passende +2 zu spielen.
+   - Falls nicht vorhanden, zieht er alle Strafkarten.
+   - Bei normalem Zug spielt der Bot, wenn möglich, eine passende Karte, andernfalls zieht er eine Karte.
+*/
 function botTurn(scene) {
   let botCards = players[currentPlayer];
   if (plusTwoStack > 0) {
@@ -365,7 +371,6 @@ function botTurn(scene) {
     return;
   }
 
-  // Normales Spielen, wenn kein Strafstapel aktiv ist
   let playableIndex = botCards.findIndex(card => isPlayable(card));
   if (playableIndex !== -1) {
     let card = botCards.splice(playableIndex, 1)[0];
@@ -388,20 +393,48 @@ function botTurn(scene) {
 }
 
 /* 
-  ensureDeck(count):
-  Prüft vor dem Ziehen, ob genügend Karten im Ziehstapel sind.
-  Ist der Ziehstapel nicht ausreichend gefüllt, werden alle abgelegten Karten (aus discardPile)
-  gemischt und zum Ziehstapel hinzugefügt.
+  Zeigt ein Gewinnmodal an, in dem der Gewinnertext und ein Neustart-Button angezeigt werden.
+  Der Container erscheint zentriert im Kamerabereich der Szene.
 */
-function ensureDeck(count) {
-  if (deck.length < count && discardPile.length > 0) {
-    // Mische alle Karten im discardPile (die abgelegten Karten) und lege sie in den Ziehstapel.
-    deck = deck.concat(Phaser.Utils.Array.Shuffle(discardPile));
+function showWinModal(scene, winnerText) {
+  const modalWidth = 400;
+  const modalHeight = 200;
+  const modalX = scene.cameras.main.centerX - modalWidth / 2;
+  const modalY = scene.cameras.main.centerY - modalHeight / 2;
+  
+  // Erzeuge einen Container als Modal
+  let modalContainer = scene.add.container(modalX, modalY);
+  
+  // Hintergrund des Modals
+  let bg = scene.add.rectangle(modalWidth / 2, modalHeight / 2, modalWidth, modalHeight, 0x000000, 0.8);
+  bg.setStrokeStyle(2, 0xffffff);
+  modalContainer.add(bg);
+  
+  // Gewinnertext
+  let winText = scene.add.text(modalWidth / 2, 60, winnerText, { fontSize: '28px', fill: '#fff' });
+  winText.setOrigin(0.5);
+  modalContainer.add(winText);
+  
+  // Neustart-Button
+  let restartButton = scene.add.text(modalWidth / 2, 130, 'Neustarten', {
+    fontSize: '24px',
+    backgroundColor: '#3a3a3c',
+    padding: { x: 12, y: 8 },
+    fill: '#fff'
+  }).setOrigin(0.5).setInteractive();
+  
+  restartButton.on('pointerdown', () => {
+    deck = [];
     discardPile = [];
-  }
+    players = [];
+    currentPlayer = 0;
+    plusTwoStack = 0;
+    scene.scene.restart();
+  });
+  modalContainer.add(restartButton);
 }
 
-/* Modal-Funktionalität */
+/* Modal-Funktionalität für Info-Icon */
 document.getElementById("info-icon").addEventListener("click", function(){
   document.getElementById("info-modal").style.display = "block";
 });
