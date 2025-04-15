@@ -29,8 +29,8 @@ const numbers = ['0','1','2','3','4','5','6','7','8','9'];
 const positions = [
   { x: 600, y: 700 }, // Spieler unten
   { x: 150, y: 100 }, // Bot 1 links oben
-  { x: 1050, y: 100 }, // Bot 2 rechts oben
-  { x: 600, y: 100 }  // Bot 3 Mitte oben
+  { x: 600, y: 100 }, // Bot 2 rechts oben
+  { x: 1050, y: 100 }  // Bot 3 Mitte oben
 ];
 // DropZone in der Mitte des Spielfelds
 const dropZone = { x: 600, y: 400, width: 160, height: 210 };
@@ -165,10 +165,22 @@ function createCardContainer(scene, card, x, y) {
 
 // Bei einem aktiven Strafstapel dürfen nur +2-Karten gespielt werden
 function isPlayable(card) {
+  // Wenn ein Strafstapel aktiv ist, darf nur eine +2-Karte gespielt werden.
   if (plusTwoStack > 0) {
-    return card.value === "+2";
+    if (card.value !== "+2") return false;
+    // Eine +2-Karte kann nur gespielt werden,
+    // wenn die aktuelle Karte auch eine +2 ist oder die Farbe übereinstimmt.
+    return (currentCard.value === "+2" || card.color === currentCard.color);
+  } else {
+    // Normaler Spielzug:
+    if (card.value === "+2") {
+      // +2-Karten dürfen nur gespielt werden, wenn die aktuelle Karte auch +2 ist oder die Farbe übereinstimmt.
+      return (currentCard.value === "+2" || card.color === currentCard.color);
+    } else {
+      // Für Zahlenkarten und andere nicht bestrafende Karten
+      return (card.color === currentCard.color || card.value === currentCard.value);
+    }
   }
-  return (card.color === currentCard.color || card.value === currentCard.value || card.value === "+2");
 }
 
 function activatePlayerInput(scene) {
