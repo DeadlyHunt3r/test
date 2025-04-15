@@ -173,7 +173,7 @@ function drawPlayerHand(scene) {
     cardContainer.originalX = x;
     cardContainer.originalY = y;
     cardContainer.setSize(cardWidth, cardHeight);
-    cardContainer.setInteractive(new Phaser.Geom.Rectangle(0, 0, cardWidth, cardHeight), Phaser.Geom.Rectangle.Contains);
+    cardContainer.setInteractive(new Phaser.Geom.Rectangle(60, 0, cardWidth, cardHeight), Phaser.Geom.Rectangle.Contains);
     scene.input.setDraggable(cardContainer);
     cardContainer.card = card;
     cardSprites.push(cardContainer);
