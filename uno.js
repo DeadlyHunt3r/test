@@ -14,18 +14,19 @@ const game = new Phaser.Game(config);
 
 let players = [];
 let currentPlayer = 0;
-let deck = [];
-let currentCard;
+let deck = [];          // Ziehstapel
+let discardPile = [];   // Ablagestapel (gelegte Karten)
+let currentCard;        // Aktuell aufgedeckte Karte (liegt auf dem Tisch)
 let cardSprites = [];
 let drawButton;
 let scrollOffset = 0;
 
-// Hier wird der Strafstapel geführt – wenn > 0 müssen Strafkarten gezogen werden oder man kann mit einer +2 reagieren.
+// Strafstapel für +2-Karten; wenn > 0 muss ein Spieler entweder eine +2 legen oder die angesammelte Strafmenge ziehen.
 let plusTwoStack = 0;
 
 const colors = ['rot', 'gelb', 'grün', 'blau'];
 const numbers = ['0','1','2','3','4','5','6','7','8','9'];
-// Angepasste Positionen für ein größeres Spielfeld
+// Positionen für das Spielfeld
 const positions = [
   { x: 600, y: 700 }, // Spieler unten
   { x: 150, y: 100 }, // Bot 1 links oben
@@ -39,7 +40,7 @@ const dropZone = { x: 600, y: 400, width: 160, height: 210 };
 const botNames = ["Siegfried", "Bob", "Hildegard"];
 
 function preload() {
-  // Kartenbilder laden (Zahlenkarten)
+  // Zahlenkarten laden
   for (let color of colors) {
     for (let number of numbers) {
       let key = `${color}_${number}`;
@@ -51,7 +52,7 @@ function preload() {
     let key = `${color}_+2`;
     this.load.image(key, `assets/cards/${key}.png`);
   }
-  // Profilbilder für die Bots laden
+  // Profilbilder für die Bots
   this.load.image('botProfile1', 'assets/bot1.png');
   this.load.image('botProfile2', 'assets/bot2.png');
   this.load.image('botProfile3', 'assets/bot3.png');
@@ -60,10 +61,11 @@ function preload() {
 function create() {
   this.children.removeAll();
 
+  // Deck erstellen, mischen und austeilen, falls noch nicht vorhanden
   if (deck.length === 0) {
     deck = createDeck();
     Phaser.Utils.Array.Shuffle(deck);
-    // Startkarte direkt aus dem Deck holen
+    // Ziehe die Startkarte vom Ziehstapel
     currentCard = deck.pop();
     // Jeder Spieler erhält 7 Karten
     for (let i = 0; i < 4; i++) {
@@ -73,7 +75,7 @@ function create() {
 
   drawCurrentCard(this);
 
-  // Bot-Rahmen inkl. Profilbild, Name und Kartenanzahl
+  // Bot-Rahmen inkl. Profilbild, Namen und Kartenanzahl
   for (let i = 1; i < 4; i++) {
     this.add.rectangle(positions[i].x, positions[i].y, 220, 120, 0x444444)
       .setStrokeStyle(3, currentPlayer === i ? 0xffcc00 : 0xaaaaaa)
@@ -101,12 +103,13 @@ function create() {
   const dz = this.add.rectangle(dropZone.x, dropZone.y, dropZone.width, dropZone.height, 0xffffff, 0.1);
   dz.setStrokeStyle(3, 0xffffff);
 
-  // Scrollen ohne Begrenzung
+  // Ermögliche horizontales Scrollen der Handkarten
   this.input.on('wheel', (pointer, gameObjects, dx, dy) => {
     scrollOffset -= dy * 0.1;
     drawPlayerHand(this);
   });
 
+  // Startet den Botzug, falls der aktuelle Spieler ein Bot ist
   if (currentPlayer !== 0) {
     this.time.delayedCall(2000, () => botTurn(this), [], this);
   }
@@ -114,26 +117,29 @@ function create() {
 
 function update() {}
 
+// Erzeugt ein vollständiges Kartendeck (Zahlen + je 2x +2)
 function createDeck() {
   let newDeck = [];
   for (let color of colors) {
-    // Zahlenkarten hinzufügen
+    // Zahlenkarten
     for (let number of numbers) {
       newDeck.push({ color: color, value: number });
     }
-    // +2-Karten hinzufügen (zwei pro Farbe)
+    // Zwei +2-Karten pro Farbe
     newDeck.push({ color: color, value: '+2' });
     newDeck.push({ color: color, value: '+2' });
   }
   return newDeck;
 }
 
+// Zeichnet die aktuelle Karte in der DropZone
 function drawCurrentCard(scene) {
   scene.children.list.filter(child => child.currentCard).forEach(child => child.destroy());
   let container = createCardContainer(scene, currentCard, dropZone.x, dropZone.y);
   container.currentCard = true;
 }
 
+// Zeichnet die Hand des Spielers
 function drawPlayerHand(scene) {
   cardSprites.forEach(cs => cs.destroy());
   cardSprites = [];
@@ -156,6 +162,7 @@ function drawPlayerHand(scene) {
   });
 }
 
+// Erzeugt einen Container für eine Karte
 function createCardContainer(scene, card, x, y) {
   let key = `${card.color}_${card.value}`;
   let sprite = scene.add.image(0, 0, key).setDisplaySize(120, 180);
@@ -163,21 +170,17 @@ function createCardContainer(scene, card, x, y) {
   return container;
 }
 
-// Bei einem aktiven Strafstapel dürfen nur +2-Karten gespielt werden
+/* Spielregeln: Eine +2-Karte darf nur gespielt werden,
+   wenn entweder die aktuelle Karte ebenfalls eine +2 ist oder die Farben übereinstimmen.
+   Bei einem aktiven Strafstapel (plusTwoStack > 0) dürfen nur +2-Karten gespielt werden. */
 function isPlayable(card) {
-  // Wenn ein Strafstapel aktiv ist, darf nur eine +2-Karte gespielt werden.
   if (plusTwoStack > 0) {
     if (card.value !== "+2") return false;
-    // Eine +2-Karte kann nur gespielt werden,
-    // wenn die aktuelle Karte auch eine +2 ist oder die Farbe übereinstimmt.
     return (currentCard.value === "+2" || card.color === currentCard.color);
   } else {
-    // Normaler Spielzug:
     if (card.value === "+2") {
-      // +2-Karten dürfen nur gespielt werden, wenn die aktuelle Karte auch +2 ist oder die Farbe übereinstimmt.
       return (currentCard.value === "+2" || card.color === currentCard.color);
     } else {
-      // Für Zahlenkarten und andere nicht bestrafende Karten
       return (card.color === currentCard.color || card.value === currentCard.value);
     }
   }
@@ -206,7 +209,7 @@ function activatePlayerInput(scene) {
       { x: gameObject.x, y: gameObject.y }
     )) {
       if (isPlayable(gameObject.card)) {
-        // Spieler spielt Karte
+        // Spieler legt Karte
         playPlayerCard(gameObject.card);
         gameObject.destroy();
         cardSprites = cardSprites.filter(cs => cs !== gameObject);
@@ -226,15 +229,16 @@ function deactivatePlayerInput(scene) {
   });
 }
 
+/* Erstellt den Draw-Button.
+   Der Button-Text ändert sich, wenn Strafkarten gezogen werden müssen. */
 function createDrawButton(scene) {
-  // Button-Text ändert sich, wenn Strafkarten gezogen werden müssen
   let buttonText = plusTwoStack > 0 ? 'Strafkarten ziehen' : 'Karte ziehen';
   drawButton = scene.add.text(100, 550, buttonText, { fontSize: '24px', backgroundColor: '#3a3a3c', padding: { x: 12, y: 8 } })
     .setInteractive()
     .on('pointerdown', () => {
-      refillDeckIfEmpty();
       if (plusTwoStack > 0) {
-        // Spieler zieht alle Strafkarten
+        // Sicherstellen, dass genug Karten vorhanden sind, um die Strafkarten zu ziehen
+        ensureDeck(plusTwoStack);
         for (let i = 0; i < plusTwoStack; i++) {
           if (deck.length > 0) {
             players[0].push(deck.pop());
@@ -242,11 +246,12 @@ function createDrawButton(scene) {
         }
         plusTwoStack = 0;
       } else {
+        ensureDeck(1);
         if (deck.length > 0) {
           let newCard = deck.pop();
           players[0].push(newCard);
         } else {
-          console.log("Kein Zug möglich – Deck ist leer!");
+          console.log("Kein Zug möglich – deck ist leer!");
         }
       }
       removeDrawButton();
@@ -261,13 +266,15 @@ function removeDrawButton() {
   }
 }
 
+/* Wenn ein Spieler eine Karte legt, wird sie in den Ablagestapel verschoben.
+   Spielt der Spieler eine +2, wird auch der Strafstapel erhöht. */
 function playPlayerCard(card) {
   const index = players[0].findIndex(c => c.color === card.color && c.value === card.value);
   if (index !== -1) {
     players[0].splice(index, 1);
     currentCard = card;
-    deck.push(card);
-    // Falls der Spieler eine +2 legt, wird der Strafstapel erhöht
+    // Gelegte Karte in den Ablagestapel verschieben
+    discardPile.push(card);
     if (card.value === "+2") {
       plusTwoStack += 2;
     }
@@ -275,6 +282,7 @@ function playPlayerCard(card) {
   }
 }
 
+// Hebt den aktiven Spieler hervor
 function highlightActivePlayer(scene) {
   if (currentPlayer !== 0) {
     scene.add.rectangle(positions[0].x, positions[0].y, 260, 160)
@@ -284,8 +292,9 @@ function highlightActivePlayer(scene) {
   }
 }
 
+/* Prüft, ob ein Spieler gewonnen hat; sonst wird zum nächsten Spieler gewechselt.
+   Vor dem Ziehen von Karten wird mittels ensureDeck(count) überprüft, ob genügend Karten im Ziehstapel sind. */
 function nextTurn(scene) {
-  // Gewinnbedingung prüfen
   for (let i = 0; i < players.length; i++) {
     if (players[i].length === 0) {
       scene.add.text(500, 380, i === 0 ? 'Du hast gewonnen!' : botNames[i - 1] + ' hat gewonnen!', { fontSize: '32px', fill: '#0f0' });
@@ -293,6 +302,7 @@ function nextTurn(scene) {
         .setInteractive()
         .on('pointerdown', () => {
           deck = [];
+          discardPile = [];
           players = [];
           currentPlayer = 0;
           plusTwoStack = 0;
@@ -305,7 +315,7 @@ function nextTurn(scene) {
   // Wechsle zum nächsten Spieler
   currentPlayer = (currentPlayer + 1) % 4;
 
-  // Aktualisierung der Bot-Rahmen und Kartenzähler
+  // Aktualisiere die UI bei den Bots
   for (let i = 1; i < 4; i++) {
     const frame = scene.children.getByName(`botFrame${i}`);
     if (frame) frame.setStrokeStyle(3, currentPlayer === i ? 0xffcc00 : 0xaaaaaa);
@@ -329,21 +339,22 @@ function nextTurn(scene) {
   drawCurrentCard(scene);
 }
 
+/* Bot-Logik.
+   Zuerst wird geprüft, ob ein Strafstapel aktiv ist. Falls ja, versucht der Bot, eine +2 zu spielen.
+   Besitzt er keine, zieht er alle Strafkarten. */
 function botTurn(scene) {
   let botCards = players[currentPlayer];
-  // Falls ein Strafstapel aktiv ist, prüfen, ob der Bot eine +2 besitzt
   if (plusTwoStack > 0) {
-    let index = botCards.findIndex(card => card.value === "+2");
+    let index = botCards.findIndex(card => card.value === "+2" && (currentCard.value === "+2" || card.color === currentCard.color));
     if (index !== -1) {
       let card = botCards.splice(index, 1)[0];
       currentCard = card;
-      deck.push(card);
-      plusTwoStack += 2;  // Strafstapel erhöhen
+      discardPile.push(card);
+      plusTwoStack += 2;
       drawCurrentCard(scene);
     } else {
-      // Bot hat keine +2 – er zieht alle Strafkarten
+      ensureDeck(plusTwoStack);
       for (let i = 0; i < plusTwoStack; i++) {
-        refillDeckIfEmpty();
         if (deck.length > 0) {
           botCards.push(deck.pop());
         }
@@ -354,22 +365,20 @@ function botTurn(scene) {
     return;
   }
 
-  // Normale Spielzüge, wenn kein Strafstapel aktiv ist
-  console.log("Bot's Hand:", botCards);
+  // Normales Spielen, wenn kein Strafstapel aktiv ist
   let playableIndex = botCards.findIndex(card => isPlayable(card));
   if (playableIndex !== -1) {
     let card = botCards.splice(playableIndex, 1)[0];
     currentCard = card;
-    deck.push(card);
+    discardPile.push(card);
     if (card.value === "+2") {
       plusTwoStack += 2;
     }
     drawCurrentCard(scene);
   } else {
-    refillDeckIfEmpty();
+    ensureDeck(1);
     if (deck.length > 0) {
       let drawnCard = deck.pop();
-      console.log("Bot zieht:", drawnCard);
       botCards.push(drawnCard);
     } else {
       console.log("Deck ist leer, Bot kann nichts tun!");
@@ -378,33 +387,27 @@ function botTurn(scene) {
   nextTurn(scene);
 }
 
-function refillDeckIfEmpty() {
-  if (deck.length === 0) {
-    let allCards = createDeck();
-    for (let hand of players) {
-      hand.forEach(card => {
-        let idx = allCards.findIndex(c => c.color === card.color && c.value === card.value);
-        if (idx !== -1) allCards.splice(idx, 1);
-      });
-    }
-    let idx = allCards.findIndex(c => c.color === currentCard.color && c.value === currentCard.value);
-    if (idx !== -1) allCards.splice(idx, 1);
-    deck = Phaser.Utils.Array.Shuffle(allCards);
+/* 
+  ensureDeck(count):
+  Prüft vor dem Ziehen, ob genügend Karten im Ziehstapel sind.
+  Ist der Ziehstapel nicht ausreichend gefüllt, werden alle abgelegten Karten (aus discardPile)
+  gemischt und zum Ziehstapel hinzugefügt.
+*/
+function ensureDeck(count) {
+  if (deck.length < count && discardPile.length > 0) {
+    // Mische alle Karten im discardPile (die abgelegten Karten) und lege sie in den Ziehstapel.
+    deck = deck.concat(Phaser.Utils.Array.Shuffle(discardPile));
+    discardPile = [];
   }
 }
 
 /* Modal-Funktionalität */
-// Öffnet das Modal beim Klicken auf das Info-Icon
 document.getElementById("info-icon").addEventListener("click", function(){
   document.getElementById("info-modal").style.display = "block";
 });
-
-// Schließt das Modal beim Klicken auf das Schließen-Symbol
 document.getElementsByClassName("close")[0].addEventListener("click", function(){
   document.getElementById("info-modal").style.display = "none";
 });
-
-// Schließt das Modal, wenn außerhalb des Modal-Contents geklickt wird
 window.addEventListener("click", function(event){
   if(event.target == document.getElementById("info-modal")){
     document.getElementById("info-modal").style.display = "none";
