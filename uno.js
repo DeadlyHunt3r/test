@@ -3,7 +3,7 @@ const config = {
   width: 1200,
   height: 800,
   parent: 'game-container',
-  transparent: true, // <- das ist der wichtige Teil!
+  transparent: true, // Hintergrund transparent
   scene: {
     preload: preload,
     create: create,
@@ -21,6 +21,7 @@ let currentCard;        // Aktuell aufgedeckte Karte
 let cardSprites = [];
 let drawButton;
 let scrollOffset = 0;
+let handBorder;         // Neuer globaler Rahmen für den Kartencontainer des Spielers
 
 // Strafstapel für +2-Karten; wenn > 0 muss ein Spieler entweder eine +2 legen oder die angesammelte Strafmenge ziehen.
 let plusTwoStack = 0;
@@ -54,9 +55,9 @@ function preload() {
     this.load.image(key, `assets/cards/${key}.png`);
   }
   // Profilbilder für die Bots laden
-  this.load.image('botProfile1', 'assets/bot1.png');
-  this.load.image('botProfile2', 'assets/bot2.png');
-  this.load.image('botProfile3', 'assets/bot3.png');
+  this.load.image('botProfile1', 'assets/pb/bot1.png');
+  this.load.image('botProfile2', 'assets/pb/bot2.png');
+  this.load.image('botProfile3', 'assets/pb/bot3.png');
 }
 
 function create() {
@@ -81,11 +82,11 @@ function create() {
     this.add.rectangle(positions[i].x, positions[i].y, 220, 120, 0x444444)
       .setStrokeStyle(3, currentPlayer === i ? 0xffcc00 : 0xaaaaaa)
       .setName(`botFrame${i}`);
-    this.add.image(positions[i].x, positions[i].y - 20, `botProfile${i}`)
-      .setDisplaySize(40, 40);
-    this.add.text(positions[i].x, positions[i].y + 10, botNames[i - 1], { fontSize: '18px', fill: '#eee' })
+    this.add.image(positions[i].x, positions[i].y - 15, `botProfile${i}`)
+      .setDisplaySize(80, 80);
+    this.add.text(positions[i].x, positions[i].y + 45, botNames[i - 1], { fontSize: '18px', fill: '#eee' })
       .setOrigin(0.5);
-    this.add.text(positions[i].x, positions[i].y + 30, 'Karten: ' + players[i].length, { fontSize: '16px', fill: '#eee' })
+    this.add.text(positions[i].x, positions[i].y + 80, 'Karten: ' + players[i].length, { fontSize: '16px', fill: '#eee' })
       .setOrigin(0.5)
       .setName(`botCount${i}`);
   }
@@ -140,31 +141,65 @@ function drawCurrentCard(scene) {
   container.currentCard = true;
 }
 
-// Zeichnet die Hand des menschlichen Spielers
+// Zeichnet die Hand des menschlichen Spielers und fügt einen Rahmen um den gesamten Bereich ein
 function drawPlayerHand(scene) {
+  // Entferne alte Karten und den alten Rahmen, falls vorhanden
   cardSprites.forEach(cs => cs.destroy());
   cardSprites = [];
+  if (handBorder) {
+    handBorder.destroy();
+    handBorder = null;
+  }
+  
   const hand = players[0];
-  const startX = 350 + scrollOffset;
+  const startX = 200 + scrollOffset;
   const gap = 125;
+  const cardWidth = 120;
+  const cardHeight = 180;
+  const numberOfCards = hand.length;
+  const handWidth = (numberOfCards - 1) * gap + cardWidth;
+  
+  // Erstelle einen Rahmen, der den gesamten Handbereich umfasst (mit einem kleinen Abstand als Margin)
+  const margin = 10;
+  handBorder = scene.add.rectangle(startX + handWidth / 2, positions[0].y, handWidth + 2 * margin, cardHeight + 2 * margin)
+                        .setStrokeStyle(3, 0xffffff);
+  handBorder.setDepth(-1); // Hinter den Karten platzieren
+
+  // Zeichne nun die einzelnen Karten ohne eigenen Rahmen
   hand.forEach((card, index) => {
-    let x = startX + index * gap;
-    let y = positions[0].y;
-    let cardContainer = createCardContainer(scene, card, x, y);
+    const x = startX + index * gap;
+    const y = positions[0].y;
+    let cardContainer = createCardSprite(scene, card, x, y);
     cardContainer.originalX = x;
     cardContainer.originalY = y;
-    cardContainer.setSize(120, 180);
-    cardContainer.setInteractive(new Phaser.Geom.Rectangle(0, 0, 120, 180), Phaser.Geom.Rectangle.Contains);
+    cardContainer.setSize(cardWidth, cardHeight);
+    cardContainer.setInteractive(new Phaser.Geom.Rectangle(0, 0, cardWidth, cardHeight), Phaser.Geom.Rectangle.Contains);
     scene.input.setDraggable(cardContainer);
     cardContainer.card = card;
     cardSprites.push(cardContainer);
   });
 }
 
-// Erzeugt einen Container für eine Karte
+// Erstellt einen Container für eine Karte ohne extra Rahmen
+function createCardSprite(scene, card, x, y) {
+  let key = `${card.color}_${card.value}`;
+  let sprite = scene.add.image(60, 0, key)
+    .setDisplaySize(120, 180)
+    .setOrigin(0.5);
+  let container = scene.add.container(x, y, [sprite]);
+  return container;
+}
+
+// Erzeugt einen Container für eine Karte (wird z. B. für die Ablagekarte in der DropZone verwendet)
+// Hier darfst du gerne weiterhin einen kleinen Rahmen haben, falls du das möchtest
 function createCardContainer(scene, card, x, y) {
   let key = `${card.color}_${card.value}`;
-  let sprite = scene.add.image(0, 0, key).setDisplaySize(120, 180);
+  
+  // Optional: Hier könnte auch ein Rahmen eingefügt werden – aktuell wird aber nur der Kartensprite verwendet.
+  let sprite = scene.add.image(0, 0, key)
+    .setDisplaySize(120, 180)
+    .setOrigin(0.5);
+  
   let container = scene.add.container(x, y, [sprite]);
   return container;
 }
@@ -232,32 +267,39 @@ function deactivatePlayerInput(scene) {
 }
 
 /* Erstellt den Draw-Button.
-   Der Button-Text passt sich an, falls Strafkarten gezogen werden müssen. */
+   Hier wurde der Hintergrund transparent und der Text fett gesetzt.
+*/
 function createDrawButton(scene) {
   let buttonText = plusTwoStack > 0 ? 'Strafkarten ziehen' : 'Karte ziehen';
-  drawButton = scene.add.text(100, 550, buttonText, { fontSize: '24px', backgroundColor: '#3a3a3c', padding: { x: 12, y: 8 } })
-    .setInteractive()
-    .on('pointerdown', () => {
-      if (plusTwoStack > 0) {
-        ensureDeck(plusTwoStack);
-        for (let i = 0; i < plusTwoStack; i++) {
-          if (deck.length > 0) {
-            players[0].push(deck.pop());
-          }
-        }
-        plusTwoStack = 0;
-      } else {
-        ensureDeck(1);
+  drawButton = scene.add.text(100, 550, buttonText, { 
+    fontSize: '24px', 
+    backgroundColor: 'transparent', // Hintergrund entfernt
+    padding: { x: 12, y: 8 },
+    fill: '#fff',
+    fontStyle: 'bold'              // Text fett
+  })
+  .setInteractive()
+  .on('pointerdown', () => {
+    if (plusTwoStack > 0) {
+      ensureDeck(plusTwoStack);
+      for (let i = 0; i < plusTwoStack; i++) {
         if (deck.length > 0) {
-          let newCard = deck.pop();
-          players[0].push(newCard);
-        } else {
-          console.log("Kein Zug möglich – deck ist leer!");
+          players[0].push(deck.pop());
         }
       }
-      removeDrawButton();
-      nextTurn(scene);
-    });
+      plusTwoStack = 0;
+    } else {
+      ensureDeck(1);
+      if (deck.length > 0) {
+        let newCard = deck.pop();
+        players[0].push(newCard);
+      } else {
+        console.log("Kein Zug möglich – deck ist leer!");
+      }
+    }
+    removeDrawButton();
+    nextTurn(scene);
+  });
 }
 
 function removeDrawButton() {
