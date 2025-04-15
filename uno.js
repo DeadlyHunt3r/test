@@ -3,6 +3,7 @@ const config = {
   width: 1200,
   height: 800,
   parent: 'game-container',
+  transparent: true, // <- das ist der wichtige Teil!
   scene: {
     preload: preload,
     create: create,
