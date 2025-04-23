@@ -1,34 +1,53 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="utf-8">
-  <title>Uno</title>
-  <!-- Externe CSS-Datei -->
-  <link rel="stylesheet" href="uno.css">
-  <!-- Phaser-Bibliothek -->
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Daily Sudoku</title>
+  <!-- Verknüpfe das externe CSS -->
+  <link rel="stylesheet" href="daily-sudoku.css">
 </head>
 <body>
-  <!-- Roter Punkt als Home-Button -->
-  <a href="../index.html" class="home-link"></a>
+  <!-- Roter Punkt: Klick führt zu index.html -->
+  <a href="../index.html" id="homeButton" title="Zur Startseite"></a>
+  
+  <!-- Container für den Spielbereich -->
+  <div id="game-area">
+    <!-- Timer -->
+    <div id="timer">00:00</div>
+    <!-- Sudoku-Board -->
+    <div id="sudoku-container"></div>
+    <!-- Controls -->
+    <div id="controls">
+      <button id="resetButton">Zurücksetzen</button>
+      <button id="checkButton">Lösen</button>
+    </div>
+    <!-- Nachrichtenbereich -->
+    <div id="message"></div>
+  </div>
   
   <!-- Info Icon -->
   <div id="info-icon">i</div>
-
-  <div id="game-container"></div>
+  
+  <!-- Zoom Icon (Lupe) -->
+  <div id="zoom-icon" title="Zoom">🔍</div>
+  
+  <!-- Zoom Overlay Message -->
+  <div id="zoom-message">renter modus aktiv</div>
   
   <!-- Modal -->
   <div id="info-modal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
       <p>
-        Das ist nur eine BETA Version <br><br>
-        In Zukunft werden Updates kommen welche Bonus Karten und weiters hinzufügen<br>
+        Das Ziel ist es, alle leeren Felder mit Zahlen zu füllen.<br><br>
+        Pro 3x3 Feld darf jede Zahl nur einmal vorkommen.<br><br>
+        Horizontal und vertikal darf jede Zahl nur einmal vorkommen.<br>
       </p>
     </div>
   </div>
   
-  <!-- Externe JavaScript-Datei -->
-  <script src="uno.js"></script>
+  <!-- Verknüpfe das externe JavaScript -->
+  <script src="daily-sudoku.js"></script>
 </body>
 </html>
