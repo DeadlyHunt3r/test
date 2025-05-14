@@ -4,96 +4,110 @@
   <meta charset="UTF-8">
   <title>Lucky Panda</title>
   <style>
+    /* Grundstil für die Seite */
     body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #121212;
+      padding: 0;
+      background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), url('assets/media/play_4.webp');
+      background-size: cover;
+      background-attachment: fixed;
       color: #fff;
     }
-    header {
-      background-color: #1f1f1f;
+
+    /* Header */
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       padding: 20px;
-      text-align: left;
+      background-color: rgba(44, 44, 46, 0.9);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
     }
-    header h1 {
-      margin: 0;
+
+    .logo {
       font-size: 24px;
-    }
-    .info {
-      padding: 20px;
-    }
-    .info p {
-      font-size: 18px;
-      margin: 8px 0;
-    }
-    .coins-value {
       font-weight: bold;
+      line-height: 1.2;
+      white-space: nowrap;
     }
+
+    .nav-buttons {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    /* Goldene Buttons */
+    .button {
+      background-color: #D4AF37;
+      color: #1c1c1e;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease, transform 0.1s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      white-space: nowrap;
+    }
+
+    .button:hover {
+      background-color: #C39B2E;
+      transform: translateY(-2px);
+    }
+
+    /* Weitere Styles unverändert... */
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>Lucky Panda – A Phoenix Events Creation</h1>
-  </header>
-
-  <div class="info">
-    <p><strong>Benutzername:</strong> <span id="username">Lade...</span></p>
-    <p><strong>Coins:</strong> <span class="coins-value" id="coins">Lade...</span></p>
+  <div class="header-container">
+    <div class="logo">Lucky Panda - A Phoenix Events Creation</div>
+    <div class="nav-buttons">
+      <div id="username" class="button">Lade…</div>
+      <div id="coins" class="button">Lade…</div>
+    </div>
   </div>
 
+  <!-- Hauptinhalt hier einfügen -->
+
   <script>
-    // 1. aktuelle User-Daten zentral
     const currentUser = localStorage.getItem('currentUser');
 
-    // 2. Anzeige initial setzen
     function initUserInfo() {
-      document.getElementById('username').textContent =
-        currentUser || 'Nicht eingeloggt';
+      const userEl = document.getElementById('username');
+      userEl.textContent = currentUser || 'Nicht eingeloggt';
       if (!currentUser) {
-        document.getElementById('coins').textContent = 'Kein Benutzer';
+        document.getElementById('coins').textContent = '–';
       }
     }
 
-    // 3. Coins abrufen
     async function refreshCoins() {
       if (!currentUser) return;
-      console.log("🔄 refreshCoins für", currentUser);
       try {
         const url =
-          `https://script.google.com/macros/s/AKfycbxdb_bo-KKqIf1yyQQlbI3nRPw_moF9QWY0ltpLxFy87mvOOAPumi6RUFekfUmEXEhy/exec`
-          + `?search=${encodeURIComponent(
-              JSON.stringify({ username: currentUser })
-            )}`;
+          "https://script.google.com/macros/s/AKfycbxdb_bo-KKqIf1yyQQlbI3nRPw_moF9QWY0ltpLxFy87mvOOAPumi6RUFekfUmEXEhy/exec"
+          + "?search=" + encodeURIComponent(JSON.stringify({ username: currentUser }));
         const response = await fetch(url);
         const users = await response.json();
-        console.log("📥 refreshCoins Daten:", users);
-
         const me = users.find(u => u.username === currentUser);
         const newCoins = me?.coins || 0;
         localStorage.setItem("coins", newCoins);
-
-        document.querySelector(".coins-value").textContent =
-          newCoins.toLocaleString("de-DE");
+        document.getElementById('coins').textContent = newCoins.toLocaleString("de-DE");
       } catch (err) {
-        console.error("🚨 Fehler beim Aktualisieren der Coins:", err);
+        console.error("Fehler beim Aktualisieren der Coins:", err);
       }
     }
 
-    // 4. Events: Seite laden & wieder sichtbar werden
     window.addEventListener('DOMContentLoaded', () => {
       initUserInfo();
       refreshCoins();
     });
 
-    // Wenn die Seite etwa via Back-Button wieder angezeigt wird:
-    window.addEventListener('pageshow', event => {
-      // auch beim „persisted“-Zustand neu laden
+    window.addEventListener('pageshow', () => {
       refreshCoins();
     });
-
-    // 5. Optional: Intervall, damit sich Coins automatisch nachlaufen
-    // setInterval(refreshCoins, 60000); // jede Minute
   </script>
 
 </body>
