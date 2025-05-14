@@ -1,114 +1,150 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>Lucky Panda</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lucky Panda – Casino</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet" />
   <style>
-    /* Grundstil für die Seite */
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
       margin: 0;
-      padding: 0;
-      background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), url('assets/media/play_4.webp');
-      background-size: cover;
-      background-attachment: fixed;
-      color: #fff;
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, #141e30, #243b55);
+      color: white;
     }
 
-    /* Header */
-    .header-container {
-      background-color: rgba(44, 44, 46, 0.9);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-      padding: 20px;
-    }
-    .header-top {
+    header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      background-color: #0f131a;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
     }
+
     .logo {
-      font-size: 24px;
+      font-size: 26px;
       font-weight: bold;
-      color: #fff;
-      white-space: nowrap;
-      margin: 0;
+      color: #ffd700;
     }
-    .nav-button {
-      background-color: #D4AF37;
-      color: #1c1c1e;
-      border: none;
-      padding: 6px 14px;
-      border-radius: 8px;
-      cursor: pointer;
+
+    .user-panel {
       font-size: 16px;
+    }
+
+    .coins {
+      color: #00ffae;
       font-weight: bold;
-      text-decoration: none;
-      transition: background-color 0.3s ease;
     }
-    .nav-button:hover {
-      background-color: #C39B2E;
+
+    main {
+      padding: 40px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
     }
-    .user-coins {
-      margin-top: 12px;
-      font-size: 18px;
-      font-weight: normal;
-      color: #fff;
-      white-space: nowrap;
+
+    .game-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 30px;
+      width: 250px;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
     }
-    /* Weitere Styles unverändert... */
+
+    .game-card:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: translateY(-5px);
+    }
+
+    .game-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #f6c90e;
+    }
+
+    .game-desc {
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #777;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
-
-  <div class="header-container">
-    <div class="header-top">
-      <div class="logo">Lucky Panda - A Phoenix Events Creation</div>
-      <a href="../index.html" class="nav-button">Panda Gaming</a>
-	  <a href="rennen.html" class="nav-button">Pferde Rennen</a>
+  <header>
+    <div class="logo">Lucky Panda</div>
+    <div class="user-panel">
+      <span id="username">Benutzer</span> – Coins: <span class="coins" id="coins">0</span>
     </div>
-    <div class="user-coins">
-      <span id="username">Lade…</span> - <span id="coins">Lade…</span>
-    </div>
-  </div>
+  </header>
 
-  <!-- Hauptinhalt hier einfügen -->
+  <main>
+    <div class="game-card" onclick="openGame('gluecksrad.html')">
+      <div class="game-title">Glücksrad</div>
+      <div class="game-desc">Dreh und gewinne Coins mit Glück!</div>
+    </div>
+
+    <div class="game-card" onclick="openGame('rubellose.html')">
+      <div class="game-title">Rubellose</div>
+      <div class="game-desc">Rubbel dein Glück frei!</div>
+    </div>
+
+    <div class="game-card" onclick="openGame('hoeher-tiefer.html')">
+      <div class="game-title">Höher / Tiefer</div>
+      <div class="game-desc">Wird die nächste Karte höher oder tiefer?</div>
+    </div>
+  </main>
+
+  <footer>
+    © 2025 Lucky Panda – Teil von Panda Gaming
+  </footer>
 
   <script>
-    const currentUser = localStorage.getItem('currentUser');
+    const username = localStorage.getItem("username") || "Gast";
+    const coins = localStorage.getItem("coins") || 10000;
 
-    function initUserInfo() {
-      document.getElementById('username').textContent = currentUser || 'Nicht eingeloggt';
-      if (!currentUser) {
-        document.getElementById('coins').textContent = '–';
-      }
+    document.getElementById("username").innerText = username;
+    document.getElementById("coins").innerText = coins;
+
+    function openGame(url) {
+      window.location.href = url;
     }
-
-    async function refreshCoins() {
-      if (!currentUser) return;
-      try {
-        const url =
-          "https://script.google.com/macros/s/AKfycbxdb_bo-KKqIf1yyQQlbI3nRPw_moF9QWY0ltpLxFy87mvOOAPumi6RUFekfUmEXEhy/exec"
-          + "?search=" + encodeURIComponent(JSON.stringify({ username: currentUser }));
-        const response = await fetch(url);
-        const users = await response.json();
-        const me = users.find(u => u.username === currentUser);
-        const newCoins = me?.coins || 0;
-        localStorage.setItem("coins", newCoins);
-        document.getElementById('coins').textContent = newCoins.toLocaleString("de-DE");
-      } catch (err) {
-        console.error("Fehler beim Aktualisieren der Coins:", err);
-      }
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      initUserInfo();
-      refreshCoins();
-    });
-
-    window.addEventListener('pageshow', () => {
-      refreshCoins();
-    });
   </script>
 
+<a href="index.html" class="back-button">Zurück zu Panda Gaming</a>
+<style>
+  .back-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(45deg, #ffcc00, #ffaa00);
+    color: #000;
+    padding: 12px 20px;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 8px;
+    box-shadow: 0 0 10px #ffcc00;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    z-index: 1000;
+  }
+
+  .back-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 15px #fff000;
+  }
+</style>
 </body>
+
 </html>

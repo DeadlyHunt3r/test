@@ -1,3 +1,45 @@
+// 1. Sicherstellen, dass currentUser existiert:
+(function ensureUser() {
+  let user = localStorage.getItem("currentUser");
+  if (!user) {
+    user = prompt("Bitte gib deinen Spielernamen ein:", "");
+    if (user) {
+      localStorage.setItem("currentUser", user);
+    } else {
+      // Fallback, falls der Nutzer nichts eingibt:
+      localStorage.setItem("currentUser", "Guest");
+    }
+  }
+})();
+
+// 2. Funktion zum Speichern des Sieges
+async function saveScore(score) {
+  const player = localStorage.getItem("currentUser");  // jetzt immer vorhanden
+  const apiUrl = "https://script.google.com/macros/s/AKfycbzN1dYjIwvmc083UZy_Xqxq_OIAXFXqhBe53Fy75JhDEyarjr4Sxm_h9NcIXHMuiopv/exec";
+  const sheetName = "Uno";  // oder dein gewünschtes Blatt
+  const url = `${apiUrl}?sheetName=${encodeURIComponent(sheetName)}&player=${encodeURIComponent(player)}&score=${encodeURIComponent(score)}`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    console.log("Sieg gespeichert:", data);
+  } catch (err) {
+    console.error("Fehler beim Speichern:", err);
+  }
+}
+
+// … dein bestehender Phaser‑Code …
+
+function showWinModal(scene, winnerText){
+  // … Modal‑Erzeugung wie gehabt …
+
+  // 3. Aufruf bei Sieg des Spielers
+  if (winnerText === 'Du hast gewonnen!') {
+    saveScore(1);  // addiere 1 Sieg
+  }
+}
+
 const config = {
   type: Phaser.AUTO,
   width: 1200,
