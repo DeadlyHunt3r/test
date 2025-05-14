@@ -112,10 +112,10 @@
   </footer>
 
   <script>
-    const username = localStorage.getItem("username") || "Gast";
+    const username = localStorage.getItem("currentUser") || "Gast";
     const coins = localStorage.getItem("coins") || 10000;
 
-    document.getElementById("username").innerText = username;
+    document.getElementById("currentUser").innerText = username;
     document.getElementById("coins").innerText = coins;
 
     function openGame(url) {
