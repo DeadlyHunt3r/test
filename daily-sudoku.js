@@ -215,7 +215,7 @@
     if (isValid()) {
       const score = Math.floor(accumulatedTime/1000);
       const player = localStorage.getItem(STORAGE_KEYS.user) || 'Guest';
-      fetch(`https://script.google.com/macros/s/...&player=${player}&score=${score}`);
+      fetch(`https://script.google.com/macros/s/AKfycbzN1dYjIwvmc083UZy_Xqxq_OIAXFXqhBe53Fy75JhDEyarjr4Sxm_h9NcIXHMuiopv/exec' '&player=${player}&score=${score}`);
       messageEl.innerHTML = 'Herzlichen Glückwunsch!<br>Schau morgen gerne wieder vorbei.';
     } else {
       messageEl.textContent = 'Ungültig!';
