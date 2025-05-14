@@ -86,7 +86,7 @@
   <header>
     <div class="logo">Lucky Panda</div>
     <div class="user-panel">
-      <span id="username">Benutzer</span> – Coins: <span class="coins" id="coins">0</span>
+      <span id="currentUser">Benutzer</span> – Coins: <span class="coins" id="coins">0</span>
     </div>
   </header>
 
@@ -112,10 +112,10 @@
   </footer>
 
   <script>
-    const username = localStorage.getItem("currentUser") || "Gast";
+    const currentUser = localStorage.getItem("currentUser") || "Gast";
     const coins = localStorage.getItem("coins") || 10000;
 
-    document.getElementById("currentUser").innerText = username;
+    document.getElementById("currentUser").innerText = currentUser;
     document.getElementById("coins").innerText = coins;
 
     function openGame(url) {
