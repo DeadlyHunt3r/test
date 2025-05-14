@@ -116,7 +116,7 @@
     const coins = Number(localStorage.getItem("coins")) || 10000;
 
     document.getElementById("currentUser").innerText = currentUser;
-    document.getElementById("coins").innerText = Number(coins).toLocalString("de-DE");
+    document.getElementById("coins").innerText = Number(coins).toLocaleString("de-DE");
 
     function openGame(url) {
       window.location.href = url;
