@@ -105,7 +105,29 @@
       <div class="game-title">Höher / Tiefer</div>
       <div class="game-desc">Wird die nächste Karte höher oder tiefer?</div>
     </div>
+	
+	<div class="game-card" onclick="openGame('pferderennen.html')">
+	  <div class="game-title">Pferderennen</div>
+	  <div class="game-desc">Setz auf dein Lieblingspferd und gewinne Coins!</div>
+	</div>
   </main>
+  
+    <div id="unavailable-msg" style="
+	  display: none;
+	  position: fixed;
+	  top: 20px;
+	  left: 50%;
+	  transform: translateX(-50%);
+	  background-color: #222;
+	  color: #fff;
+	  padding: 10px 20 px;
+	  border-radius: 8px;
+	  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+	  z-index: 9999;
+	  front-weight: bold;
+	">
+	  Dieses Spiel ist noch nicht verfügbar.
+	</div>
 
   <footer>
     © 2025 Lucky Panda – Teil von Panda Gaming
@@ -119,8 +141,25 @@
     document.getElementById("coins").innerText = Number(coins).toLocaleString("de-DE");
 
     function openGame(url) {
-      window.location.href = url;
-    }
+	  fetch(url, { method: "HEAD" })
+	    .then(res => {
+		  if (res.ok) {
+		    window.location.href = url;
+	      } else {
+		    showUnavailableMessage();
+		  }
+		})
+		.catch(() => {
+		  showUnavailableMessage();
+		});
+	function showUnavailableMessage() {
+	  const msg = document.getElementById("unavailable-msg");
+	  msg.style.display = "block";
+	  setTimeout(() => {
+	    msg.style.display = "none";
+	  }, 4000);
+	 }
+	}
   </script>
 
 <a href="../index.html" class="back-button">Zurück zu Panda Gaming</a>
