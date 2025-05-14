@@ -18,8 +18,8 @@
     /* Header */
     .header-container {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;
+      align-items: flex-start;
       padding: 20px;
       background-color: rgba(44, 44, 46, 0.9);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
@@ -28,33 +28,16 @@
     .logo {
       font-size: 24px;
       font-weight: bold;
-      line-height: 1.2;
+      color: #fff;
       white-space: nowrap;
+      margin: 0;
     }
 
-    .nav-buttons {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
-
-    /* Goldene Buttons */
-    .button {
-      background-color: #D4AF37;
-      color: #1c1c1e;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 12px;
-      cursor: pointer;
+    .user-coins {
+      margin-top: 8px;
       font-size: 16px;
-      transition: background-color 0.3s ease, transform 0.1s ease;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      color: #fff;
       white-space: nowrap;
-    }
-
-    .button:hover {
-      background-color: #C39B2E;
-      transform: translateY(-2px);
     }
 
     /* Weitere Styles unverändert... */
@@ -64,9 +47,8 @@
 
   <div class="header-container">
     <div class="logo">Lucky Panda - A Phoenix Events Creation</div>
-    <div class="nav-buttons">
-      <div id="username" class="button">Lade…</div>
-      <div id="coins" class="button">Lade…</div>
+    <div class="user-coins">
+      <span id="username">Lade…</span> - <span id="coins">Lade…</span>
     </div>
   </div>
 
@@ -76,8 +58,7 @@
     const currentUser = localStorage.getItem('currentUser');
 
     function initUserInfo() {
-      const userEl = document.getElementById('username');
-      userEl.textContent = currentUser || 'Nicht eingeloggt';
+      document.getElementById('username').textContent = currentUser || 'Nicht eingeloggt';
       if (!currentUser) {
         document.getElementById('coins').textContent = '–';
       }
