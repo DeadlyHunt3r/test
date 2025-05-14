@@ -17,14 +17,15 @@
 
     /* Header */
     .header-container {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 20px;
       background-color: rgba(44, 44, 46, 0.9);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+      padding: 20px;
     }
-
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
     .logo {
       font-size: 24px;
       font-weight: bold;
@@ -32,22 +33,39 @@
       white-space: nowrap;
       margin: 0;
     }
-
-    .user-coins {
-      margin-top: 8px;
-      font-size: 18px;
+    .nav-button {
+      background-color: #D4AF37;
+      color: #1c1c1e;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
       font-weight: bold;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+    }
+    .nav-button:hover {
+      background-color: #C39B2E;
+    }
+    .user-coins {
+      margin-top: 12px;
+      font-size: 18px;
+      font-weight: normal;
       color: #fff;
       white-space: nowrap;
     }
-
     /* Weitere Styles unverändert... */
   </style>
 </head>
 <body>
 
   <div class="header-container">
-    <div class="logo">Lucky Panda - A Phoenix Events Creation</div>
+    <div class="header-top">
+      <div class="logo">Lucky Panda - A Phoenix Events Creation</div>
+      <a href="../index.html" class="nav-button">Panda Gaming</a>
+	  <a href="rennen.html" class="nav-button">Pferde Rennen</a>
+    </div>
     <div class="user-coins">
       <span id="username">Lade…</span> - <span id="coins">Lade…</span>
     </div>
