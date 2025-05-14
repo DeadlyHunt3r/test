@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Tetris</title>
+  <!-- Retro Pixel Font einbinden -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <!-- Externes CSS -->
+  <link rel="stylesheet" href="tetris.css">
+</head>
+<body>
+  <!-- Zurück-Dot -->
+  <div id="backButton" title="Zurück zu index.html"></div>
+  
+  <!-- Info Icon -->
+  <div id="info-icon">i</div>
+  
+  <!-- Modal -->
+  <div id="info-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <p>
+        Das Ziel ist es, die Reihen mit den Blöcken zu vervollständigen.<br><br>
+        Das Spiel ist beendet, wenn keine neuen Blöcke mehr platziert werden können.<br><br>
+        Wenn eine Reihe vollständig ist, wird sie entfernt und man bekommt 100 Score.<br><br>
+        Mehrere Reihen auf einmal zu vervollständigen gibt Bonus-Score.
+      </p>
+    </div>
+  </div>
+  
+  <!-- Phaser 3 über CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+  <!-- Externes JavaScript -->
+  <script src="tetris.js"></script>
+  
+  <!-- Restart-Button unterhalb des Spielfeldes -->
+  <button id="restartButton">Neu starten</button>
+</body>
+</html>

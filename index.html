@@ -3,51 +3,146 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Daily Sudoku</title>
-  <!-- Verknüpfe das externe CSS -->
-  <link rel="stylesheet" href="daily-sudoku.css">
+  <title>Panda Gaming</title>
+  <!-- Externe CSS-Datei einbinden -->
+  <link rel="stylesheet" href="index.css">
 </head>
 <body>
-  <!-- Roter Punkt: Klick führt zu index.html -->
-  <a href="../index.html" id="homeButton" title="Zur Startseite"></a>
-  
-  <!-- Container für den Spielbereich -->
-  <div id="game-area">
-    <!-- Timer -->
-    <div id="timer">00:00</div>
-    <!-- Sudoku-Board -->
-    <div id="sudoku-container"></div>
-    <!-- Controls -->
-    <div id="controls">
-      <button id="resetButton">Zurücksetzen</button>
-      <button id="checkButton">Lösen</button>
+  <!-- Header-Bereich -->
+  <header>
+    <div class="header-container">
+      <div class="logo" id="logo">Panda Gaming – A Phoenix Events Creation</div>  
+      <div class="nav-buttons">
+        <button id="adminBtn" class="button" style="display: none;">User</button>
+        <button id="changelogBtn" class="button">Changelog</button>
+        <button id="highscoreBtn" class="button">Highscore</button>
+		<button id="luckyBtn" class="button" style="display: none;">Lucky Panda</button>
+        <button id="gamesBtn" class="button">Games</button>
+        <!-- Neuer Session-Button -->
+        <button id="sessionBtn" class="button">Season</button>
+        <button id="loginBtn" class="button">Login</button>
+      </div>
     </div>
-    <!-- Nachrichtenbereich -->
-    <div id="message"></div>
-  </div>
+  </header>
+
+  <!-- Notification Message -->
+  <div id="notification"></div>
   
-  <!-- Info Icon -->
-  <div id="info-icon">i</div>
-  
-  <!-- Zoom Icon (Lupe) -->
-  <div id="zoom-icon" title="Zoom">🔍</div>
-  
-  <!-- Zoom Overlay Message -->
-  <div id="zoom-message">renter modus aktiv</div>
-  
-  <!-- Modal -->
-  <div id="info-modal" class="modal">
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal">
     <div class="modal-content">
-      <span class="close">&times;</span>
-      <p>
-        Das Ziel ist es, alle leeren Felder mit Zahlen zu füllen.<br><br>
-        Pro 3x3 Feld darf jede Zahl nur einmal vorkommen.<br><br>
-        Horizontal und vertikal darf jede Zahl nur einmal vorkommen.<br>
-      </p>
+      <span class="close" id="closeLoginModal">&times;</span>
+      <h2>Login</h2>
+      <form id="loginForm">
+        <input type="text" id="username" name="username" placeholder="Benutzername" required>
+        <input type="password" id="password" name="password" placeholder="Passwort" required>
+        <button type="submit" class="button">Anmelden</button>
+      </form>
+      <button id="registerBtn" class="button" style="margin-top:10px;">Registrieren</button>
     </div>
   </div>
   
-  <!-- Verknüpfe das externe JavaScript -->
-  <script src="daily-sudoku.js"></script>
+  <!-- Registrierungs-Info Modal -->
+  <div id="registerModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeRegisterModal">&times;</span>
+      <p>Für eine Registrierung bitte bei Phoenix Events melden.</p>
+    </div>
+  </div>
+  
+  <!-- Admin Modal: User Management -->
+  <div id="adminModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeAdminModal">&times;</span>
+      <h2>User Management</h2>
+      <div id="adminModalContent">
+        <!-- Dynamische Benutzerliste -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- Games Modal: Liste aller Spiele -->
+  <div id="gamesModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeGamesModal">&times;</span>
+      <h2>Spiele</h2>
+      <div id="gameListGames">
+        <!-- Dynamische Spiel-Liste -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- Highscore Games Modal -->
+  <div id="highscoreGamesModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeHighscoreGamesModal">&times;</span>
+      <h2>Highscore - Spiele</h2>
+      <div id="gameListHighscore">
+        <!-- Dynamische Spiel-Liste -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- Score Modal -->
+  <div id="scoreModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeScoreModal">&times;</span>
+      <h2>Highscore - Details</h2>
+      <div id="scoreDetails">
+        <!-- Anzeige: Spielername und Score -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- Changelog Modal -->
+  <div id="changelogModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeChangelogModal">&times;</span>
+      <h2>Changelog</h2>
+      <div id="changelogContent">
+        <!-- Changelog-Inhalt -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- Phoenix Fusion Auswahl Modal -->
+  <div id="phoenixFusionModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closePhoenixFusionModal">&times;</span>
+      <h2>Phoenix Fusion - Auswahl</h2>
+      <button id="btnPhoenixFusionGross" class="button">Phoenix-Fusion-Groß</button>
+      <button id="btnPhoenixFusionNormal" class="button">Phoenix-Fusion-Normal</button>
+    </div>
+  </div>
+  
+  <!-- Neuer Session Modal -->
+  <div id="sessionModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeSessionModal">&times;</span>
+      <h2>Season 1</h2>
+      <button id="sessionHighscoreBtn" class="button">Season Highscore</button>
+      <button id="sessionGameBtn" class="button">Aktuelles Season Spiel</button>
+    </div>
+  </div>
+  
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay">
+    <div id="loadingBarContainer">
+      <div id="loadingBar"></div>
+    </div>
+  </div>
+  
+  <!-- Countdown Modal für Session -->
+  <div id="sessionCountdownModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeSessionCountdown">&times;</span>
+      <h2>Nächste Season Countdown</h2>
+      <div id="countdownTimer"></div>
+    </div>
+  </div>
+  
+    <!-- Externe JavaScript-Datei einbinden -->
+  <script src="index.js" defer></script>
+  
 </body>
 </html>

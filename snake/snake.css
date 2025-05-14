@@ -1,0 +1,171 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), url('../assets/media/snake.webp');
+  background-size: cover;
+  background-color: #faf8ef;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  flex-direction: column;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Container für Spiel-UI (Score, Powerup, Spielfeld, Start-Button) */
+#game-ui {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+#powerupDisplay {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+#scoreDisplay {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+#game-container {
+  margin: 10px;
+}
+#startButton {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #007aff;
+  border: none;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+}
+#startButton:hover {
+  background-color: #0051a8;
+}
+
+/* Kleiner roter Dot oben links */
+#backButton {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 20px;
+  height: 20px;
+  background-color: red;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+/* Info Icon (oben rechts) */
+#info-icon {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 30px;
+  height: 30px;
+  border: 2px solid #aaa;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 26px;
+  font-size: 16px;
+  color: #555;
+  background-color: #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+
+/* Zoom Icon (Lupe) – links neben dem Info Icon */
+#zoom-icon {
+  position: fixed;
+  top: 20px;
+  right: 60px;
+  width: 30px;
+  height: 30px;
+  border: 2px solid #aaa;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 26px;
+  font-size: 16px;
+  color: #555;
+  background-color: #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+
+/* Zoom Message (in der Mitte) */
+#zoom-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.75);
+  color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  font-size: 24px;
+  display: none;
+  z-index: 2000;
+}
+
+/* Modal Hintergrund */
+.modal {
+  display: none; /* unsichtbar */
+  position: fixed;
+  z-index: 1001;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.5);
+}
+/* Modal Content */
+.modal-content {
+  background-color: #2c2c2e;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 400px;
+  border-radius: 8px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  color: #fff;
+}
+/* Close Button */
+.close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  color: #aaa;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+#fullscreen-icon {
+  position: fixed;
+  top: 20px;
+  right: 100px;       /* 60px (Zoom) + 30px Breite + 10px Abstand */
+  width: 30px;
+  height: 30px;
+  border: 2px solid #aaa;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 26px;
+  font-size: 16px;
+  color: #555;
+  background-color: #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 1000;
+}

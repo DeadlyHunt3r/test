@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Lucky Panda</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #fff;
+    }
+    header {
+      background-color: #1f1f1f;
+      padding: 20px;
+      text-align: left;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .info {
+      padding: 20px;
+    }
+    .info p {
+      font-size: 18px;
+      margin: 8px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Lucky Panda – A Phoenix Events Creation</h1>
+  </header>
+
+  <div class="info">
+    <p><strong>Benutzername:</strong> <span id="username">Lade...</span></p>
+    <p><strong>Coins:</strong> <span id="coins">Lade...</span></p>
+  </div>
+
+  <script>
+    // Username aus Local Storage (currentUser) laden
+    const currentUser = localStorage.getItem('currentUser');
+    document.getElementById('username').textContent = currentUser || 'Nicht eingeloggt';
+
+    // Coins über API laden
+    async function loadCoins() {
+      try {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbxdb_bo-KKqIf1yyQQlbI3nRPw_moF9QWY0ltpLxFy87mvOOAPumi6RUFekfUmEXEhy/exec");
+        const data = await response.json();
+
+        // Benutzername zur Zuordnung verwenden
+        const coins = data[currentUser] ?? 0;
+
+        document.getElementById('coins').textContent = coins + ' 💰';
+      } catch (error) {
+        document.getElementById('coins').textContent = 'Fehler beim Laden';
+        console.error("Fehler beim Laden der Coins:", error);
+      }
+    }
+
+    // Nur laden, wenn Benutzer gesetzt ist
+    if (currentUser) {
+      loadCoins();
+    } else {
+      document.getElementById('coins').textContent = 'Kein Benutzer gefunden';
+    }
+  </script>
+
+</body>
+</html>

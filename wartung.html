@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Login Seite mit Countdown</title>
+  <style>
+    /* Hintergrundbild einstellen – Pfad zum Bild anpassen */
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), url('assets/media/wartung.webp');
+      background-size: cover;
+      font-family: Arial, sans-serif;
+    }
+    /* Kleines, dunkles Login-Fenster oben rechts */
+    .login-container {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      width: 250px;
+      color: #fff;
+    }
+    .login-container h2 {
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    .login-container input {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      border: 1px solid #555;
+      border-radius: 4px;
+      background: #444;
+      color: #fff;
+    }
+    .login-container button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      background-color: #007BFF;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .login-container button:hover {
+      background-color: #0056b3;
+    }
+    .error {
+      text-align: center;
+      color: #ff6666;
+      margin-top: 10px;
+    }
+    .success {
+      text-align: center;
+      color: #66ff66;
+      margin-top: 10px;
+    }
+    /* Timer-Container rechts mittig */
+    .timer-container {
+      position: absolute;
+      right: 350px;
+      top: 70%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      width: 200px;
+      text-align: center;
+      color: #fff;
+    }
+    .timer-container h2 {
+      margin: 0 0 10px 0;
+      font-size: 18px;
+    }
+    #timer {
+      font-size: 24px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <!-- Login-Fenster oben rechts -->
+  <div class="login-container">
+    <h2>Admin Login</h2>
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="Benutzername" required>
+      <input type="password" id="password" placeholder="Passwort" required>
+      <button type="submit">Login</button>
+    </form>
+    <p id="feedback"></p>
+  </div>
+
+  <!-- Countdown-Timer rechts mittig -->
+  <div class="timer-container">
+    <h2>Countdown</h2>
+    <div id="timer">00:00:00</div>
+  </div>
+
+  <script>
+    // Login-Formular
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const feedback = document.getElementById('feedback');
+
+      if (username === 'admintest123' && password === 'asdawdafwffwafasdf') {
+        feedback.textContent = 'Login erfolgreich!';
+        feedback.className = 'success';
+        // Automatische Weiterleitung zu 1index.html nach 1 Sekunde
+        setTimeout(function() {
+          window.location.href = '1index.html';
+        }, 1000);
+      } else {
+        feedback.textContent = 'Falscher Benutzername oder Passwort!';
+        feedback.className = 'error';
+      }
+    });
+
+    // Countdown-Timer, der bis 06:00 herunterzählt
+    function updateTimer() {
+      const now = new Date();
+      let target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 21, 30, 0);
+      // Falls die aktuelle Zeit bereits nach 06:00 ist, wird auf den nächsten Tag gesetzt
+      if (now >= target) {
+        target.setDate(target.getDate() + 1);
+      }
+      const diff = target - now;
+      const seconds = Math.floor(diff / 1000) % 60;
+      const minutes = Math.floor(diff / (1000 * 60)) % 60;
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      document.getElementById('timer').textContent = 
+        (hours < 10 ? '0' + hours : hours) + ':' +
+        (minutes < 10 ? '0' + minutes : minutes) + ':' +
+        (seconds < 10 ? '0' + seconds : seconds);
+    }
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phoenix Fusion</title>
+  <!-- Externes CSS einbinden -->
+  <link rel="stylesheet" href="phoenix-fusion.css">
+</head>
+<body>
+  <!-- Roter Punkt oben links als Link zu index.html -->
+  <a href="../index.html" id="home-btn" title="Zur Startseite"></a>
+
+  <!-- Zahnrad-Button oben rechts -->
+  <button id="settings-btn" title="Einstellungen">&#9881;</button>
+
+  <!-- Einstellungsfenster -->
+  <div id="settings-panel">
+    <!-- Dark Mode Toggle (optional hier ergänzen, z. B. Checkbox oder Slider) -->
+    <span class="slider"></span>
+    <!-- Steuerung anpassen -->
+    <h3>Steuerung anpassen</h3>
+    <label for="control-left">Links:</label>
+    <input type="text" id="control-left" value="a">
+    <label for="control-right">Rechts:</label>
+    <input type="text" id="control-right" value="d">
+    <label for="control-up">Oben:</label>
+    <input type="text" id="control-up" value="w">
+    <label for="control-down">Unten:</label>
+    <input type="text" id="control-down" value="s">
+  </div>
+
+  <div class="buttons">
+    <button id="toggle-size">Wechsle Spielfeldgröße</button>
+  </div>
+  <div class="game-container">
+    <h1>Phoenix Fusion</h1>
+    <!-- Statistik-Leiste -->
+    <div id="stats">Score: 0 | Moves: 0 | Höchste Kachel: 0</div>
+    <div id="board" class="board"></div>
+    <button id="restart">Neustart</button>
+  </div>
+
+  <!-- Game Over Fenster (Modal) -->
+  <div id="game-over">
+    <p>Keine Bewegung mehr möglich! Spiel beendet.</p>
+    <button id="game-over-restart">Neustarten</button>
+  </div>
+
+  <!-- Info Icon -->
+  <div id="info-icon">i</div>
+  
+  <!-- Vollbild Icon (links neben dem Zoom-Button) -->
+ <div id="fullscreen-icon" title="Vollbild umschalten">⛶</div>
+
+  
+  <!-- Modal -->
+  <div id="info-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <p>
+        Das Ziel ist es, den höchstmöglichen Block und Score zu bekommen.<br><br>
+        Das Spiel ist beendet, wenn keine neuen Blöcke mehr platziert werden können.<br><br>
+        Wenn man in eine Richtung drückt, bewegen sich alle Blöcke in diese Richtung und es erscheint ein Neuer (2 oder 4).<br><br>
+        Wenn man in eine Richtung drückt, z. B. nach rechts und es stehen zwei Vierer-Blöcke nebeneinander, werden sie zu einem Achterblock.
+      </p>
+    </div>
+  </div>
+
+  <!-- Externes JavaScript -->
+  <script src="phoenix-fusion.js"></script>
+</body>
+</html>
