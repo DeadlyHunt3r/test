@@ -43,19 +43,28 @@
   </div>
 
   <script>
-    // Holen des Benutzernamens aus Local Storage
+    // 1. aktuelle User-Daten zentral
     const currentUser = localStorage.getItem('currentUser');
-    document.getElementById('username').textContent = currentUser || 'Nicht eingeloggt';
 
-    // Funktion, um Coins zu aktualisieren
+    // 2. Anzeige initial setzen
+    function initUserInfo() {
+      document.getElementById('username').textContent =
+        currentUser || 'Nicht eingeloggt';
+      if (!currentUser) {
+        document.getElementById('coins').textContent = 'Kein Benutzer';
+      }
+    }
+
+    // 3. Coins abrufen
     async function refreshCoins() {
       if (!currentUser) return;
       console.log("🔄 refreshCoins für", currentUser);
       try {
-        const url = 
+        const url =
           `https://script.google.com/macros/s/AKfycbxdb_bo-KKqIf1yyQQlbI3nRPw_moF9QWY0ltpLxFy87mvOOAPumi6RUFekfUmEXEhy/exec`
-          + `?search=${encodeURIComponent(JSON.stringify({username: currentUser}))}`;
-        
+          + `?search=${encodeURIComponent(
+              JSON.stringify({ username: currentUser })
+            )}`;
         const response = await fetch(url);
         const users = await response.json();
         console.log("📥 refreshCoins Daten:", users);
@@ -64,21 +73,27 @@
         const newCoins = me?.coins || 0;
         localStorage.setItem("coins", newCoins);
 
-        const coinsValueSpan = document.querySelector(".coins-value");
-        if (coinsValueSpan) {
-          coinsValueSpan.textContent = newCoins.toLocaleString("de-DE");
-        }
+        document.querySelector(".coins-value").textContent =
+          newCoins.toLocaleString("de-DE");
       } catch (err) {
         console.error("🚨 Fehler beim Aktualisieren der Coins:", err);
       }
     }
 
-    // Coins beim Laden der Seite aktualisieren
-    if (currentUser) {
+    // 4. Events: Seite laden & wieder sichtbar werden
+    window.addEventListener('DOMContentLoaded', () => {
+      initUserInfo();
       refreshCoins();
-    } else {
-      document.getElementById('coins').textContent = 'Kein Benutzer gefunden';
-    }
+    });
+
+    // Wenn die Seite etwa via Back-Button wieder angezeigt wird:
+    window.addEventListener('pageshow', event => {
+      // auch beim „persisted“-Zustand neu laden
+      refreshCoins();
+    });
+
+    // 5. Optional: Intervall, damit sich Coins automatisch nachlaufen
+    // setInterval(refreshCoins, 60000); // jede Minute
   </script>
 
 </body>
