@@ -1,0 +1,30 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lucky Panda – Glücksrad</title>
+  <link rel="stylesheet" href="rad.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>🎡 Lucky Panda Glücksrad 🎡</h1>
+    <div class="coin-display">Coins: <span id="coin-count">0</span></div>
+    <p class="cost-info">🎫 Kosten pro Dreh: 200 Coins</p>
+    <div class="wheel-wrapper">
+      <div class="indicator">▼</div>
+      <canvas id="wheel" width="400" height="400"></canvas>
+    </div>
+    <button id="spin-button">Drehen</button>
+    <div class="volume-container">
+      <lable for="volume">🔊 Lautstärke:</label>
+      <input type="range" id="volume" min="0" max="1" step="0.01" value="1" />
+    </div>
+    <p class="result-text" id="result-text"></p>
+    <a class="back-button" href="../casino.html">⏪ Zurück zum Casino</a>
+  </div>
+  <audio id="spin-sound" src="spin.mp3" preload="auto"></audio>
+  <script src="rad.js"></script>
+</body>
+</html>

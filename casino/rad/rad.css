@@ -1,0 +1,99 @@
+
+body {
+  background: radial-gradient(#222, #000);
+  color: #fff;
+  font-family: 'Arial', sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+.container {
+  max-width: 600px;
+  margin: 30px auto;
+}
+h1 {
+  margin-bottom: 10px;
+}
+.coin-display {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+.cost-info {
+  margin-bottom: 20px;
+  font-size: 16px;
+  color: #ffcc00;
+}
+.wheel-wrapper {
+  position: relative;
+  width: 400px;
+  margin: 0 auto;
+}
+canvas#wheel {
+  display: block;
+  margin: 0 auto;
+}
+.indicator {
+  position: absolute;
+  top: 45%;
+  left: 400px;
+  transform: translateX(-50%) rotate(90deg);
+  font-size: 36px;
+  color: #f44336;
+  text-shadow: 1px 1px 3px black;
+  z-index: 10;
+}
+#spin-button {
+  margin-top: 20px;
+  padding: 15px 40px;
+  background: linear-gradient(135deg, #ff9800, #ff5722);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+  transition: transform 0.2s, background 0.3s;
+}
+#spin-button:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg; #ffc107, #ff7043);
+}
+#spin-button:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.volume-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+.volume-container label {
+  font-size: 18px;
+}
+.volume-container input[type="range"] {
+  vertical-align: middle;
+} 
+.result-text {
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #00ff88;
+}
+.back-button {
+  display: inline-block;
+  margin-top: 30px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+  padding: 10px 20px;
+  border: 1px solid #fff;
+  border-radius: 5px;
+}
+.back-button:hover {
+  background: #fff;
+  color: #000;
+}
