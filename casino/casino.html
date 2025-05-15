@@ -96,7 +96,7 @@
     </div>
 
     <div class="game-card" onclick="openGame('rubellose.html')">
-      <div class="game-title">Rubellose</div>
+      <div class="game-title">Rubbellose</div>
       <div class="game-desc">Rubbel dein Glück frei!</div>
     </div>
 
@@ -140,7 +140,7 @@
   document.getElementById("coins").innerText = coins.toLocaleString("de-DE");
 
   function openGame(url) {
-    fetch(url)                  // GET statt HEAD (mehr dazu unten)
+    fetch(url)                  
       .then(res => {
         if (res.ok) {
           window.location.href = url;
@@ -151,7 +151,7 @@
       .catch(() => {
         showUnavailableMessage();
       });
-  }  // <-- Hier muss diese schließende Klammer sein!
+  }  
 
   function showUnavailableMessage() {
     const msg = document.getElementById("unavailable-msg");
