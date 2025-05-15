@@ -8,7 +8,7 @@ const volumeSlider = document.getElementById("volume");
 const spinSound = document.getElementById("spin-sound");
 
 const currentUser = localStorage.getItem("currentUser") || "Spieler";
-let coins = Number(localStorage.getItem("coins")) || 10000;
+let coins = Number(localStorage.getItem("coins")) || 0;
 coinDisplay.innerText = coins.toLocaleString("de-DE");
 
 const segments = [0, 0, 50, 25, 0, 100, 0, 0, 250, 0, 25, 500];

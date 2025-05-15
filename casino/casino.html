@@ -134,7 +134,7 @@
 
 <script>
   const currentUser = localStorage.getItem("currentUser") || "Gast";
-  const coins = Number(localStorage.getItem("coins")) || 10000;
+  const coins = Number(localStorage.getItem("coins")) || 0;
 
   document.getElementById("currentUser").innerText = currentUser;
   document.getElementById("coins").innerText = coins.toLocaleString("de-DE");
