@@ -131,17 +131,37 @@ btnPhoenixFusionNormal.addEventListener("click", () => {
   openScoreModal("Phoenix-Fusion-Normal");
 });
 loginBtn.addEventListener("click", toggleLogin);
-luckyBtn.addEventListener("click", () => {
-  if (!currentUser) return showMessage("Bitte erst anmelden");
-
-  // Nur erlaubte Nutzer weiterleiten
-  const allowedUsers = ["admin", "sir_lew", "miu", "eddy", "snob"]; // <-- Liste der erlaubten Benutzernamen in Kleinbuchstaben
-  if (!allowedUsers.includes(currentUser.toLowerCase())) {
-    return showMessage("Zugriff auf Lucky Panda derzeit nur für Testnutzer freigegeben.");
+// Aktualisierte Event-Listener-Logik für Lucky Button
+luckyBtn.addEventListener("click", async () => {
+  if (!currentUser) {
+    return showMessage("Bitte erst anmelden");
   }
 
-  window.location.href = "casino/casino.html";
+  // Nur erlaubte Nutzer weiterleiten
+  const allowedUsers = ["admin", "sir_lew", "miu", "eddy", "snob"]; // Liste der erlaubten Benutzernamen in Kleinbuchstaben
+
+  // Zeige Loading
+  showLoading();
+  try {
+    // Coins aktuell aus Backend holen
+    await refreshCoins();
+
+    // Prüfen, ob Nutzer in der Allowlist ist
+    if (!allowedUsers.includes(currentUser.toLowerCase())) {
+      return showMessage("Zugriff auf Lucky Panda derzeit nur für Testnutzer freigegeben.");
+    }
+
+    // Nach erfolgreichem Laden und Prüfung weiterleiten
+    window.location.href = "casino/casino.html";
+  } catch (err) {
+    console.error("Fehler beim Laden der Coins vor Weiterleitung:", err);
+    showMessage("Konnte Coins nicht laden. Bitte versuche es später erneut.");
+  } finally {
+    // Lade-Overlay ausblenden
+    hideLoading();
+  }
 });
+
 sessionHighscoreBtn.addEventListener("click", () => {
   sessionModal.style.display = "none";
   openScoreModal("season-highscore");
