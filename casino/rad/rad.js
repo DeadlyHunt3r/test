@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Definition Rad-Logik
-  const segments = [0, 100, 50, 0, 25, 50, 0, 25, 250, 0, 25, 500];
+  const segments = [0, 150, 50, 0, 25, 200, 0, 25, 250, 0, 25, 500];
   const segmentColors = [
     "#f44336","#e91e63","#9c27b0","#3f51b5",
     "#2196f3","#03a9f4","#009688","#4caf50",
