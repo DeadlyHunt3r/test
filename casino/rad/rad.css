@@ -34,14 +34,14 @@ h1 {
   appearance: none;
   -webkit-appearance: none;
   background: linear-gradient(135deg, #ff9800, #ff5722);
-  border: none;                   /* Kein grauer Rahmen */
-  border-radius: 10px;            /* Gleiche Rundung wie der Spin-Button */
+  border: none;                   
+  border-radius: 10px;            
   padding: 10px 20px;
-  padding-right: 40px;            /* Platz für den Pfeil */
+  padding-right: 40px;            
   font-size: 16px;
   color: #fff;
   cursor: pointer;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.3); /* Gleicher Schatten wie beim Button */
+  box-shadow: 0 5px 10px rgba(0,0,0,0.3); 
   transition: transform 0.2s, background 0.3s;
 }  
 .bet-container::after {
@@ -134,7 +134,7 @@ canvas#wheel {
   background: #fff;
   color: #000;
 }
-/* Container für Label + Dropdown */
+
 .bet-container {
   display: flex;
   align-items: center;
@@ -144,14 +144,12 @@ canvas#wheel {
   font-size: 18px;
 }
 
-/* Custom‑Select Basis */
 .custom-select {
   position: relative;
   width: 160px;
   user-select: none;
 }
 
-/* Aktueller Wert („Trigger“) */
 .select-trigger {
   background: linear-gradient(135deg, #ff9800, #ff5722);
   padding: 10px 20px;
@@ -166,7 +164,6 @@ canvas#wheel {
   background: linear-gradient(135deg, #ffc107, #ff7043);
 }
 
-/* Options-Liste (versteckt) */
 .options {
   position: absolute;
   top: calc(100% + 5px);
@@ -184,7 +181,6 @@ canvas#wheel {
   z-index: 10;
 }
 
-/* Einzelne Option */
 .option {
   padding: 10px 20px;
   color: #fff;
@@ -195,9 +191,61 @@ canvas#wheel {
   background: rgba(255,255,255,0.1);
 }
 
-/* Wenn offen: Liste anzeigen */
 .custom-select.open .options {
   opacity: 1;
   pointer-events: all;
   transform: translateY(0);
+}
+
+#spin-button:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #ffc107, #ff7043);
+}
+
+.modal {
+  display: none;
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+}
+.modal-content {
+  background: #222;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%; max-width: 320px;
+  text-align: left;
+}
+#bet-options {
+  list-style: none; padding: 0; margin: 10px 0;
+}
+#bet-options li {
+  background: linear-gradient(135deg, #ff9800, #ff5722);
+  margin: 6px 0; padding: 10px; border-radius: 6px;
+  cursor: pointer; text-align: center;
+  transition: transform 0.1s;
+}
+#bet-options li:hover {
+  transform: scale(1.03);
+  background: linear-gradient(135deg, #ffc107, #ff7043);
+}
+
+.bet-button {
+  background: linear-gradient(135deg, #ff9800, #ff5722);
+  border: none; border-radius: 10px;
+  color: #fff; padding: 10px 20px;
+  font-size: 16px; cursor: pointer;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+}
+.bet-button:hover {
+  transform: scale(1.05);
+}
+
+.cost-display {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: #ccc;
 }
