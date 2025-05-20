@@ -1,0 +1,89 @@
+body {
+  background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url('../assets/media/background.jpg') center/cover no-repeat;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+#game-ui {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+#powerupDisplay, #livesDisplay {
+  font-size: 18px;
+  margin: 5px 0;
+}
+#scoreDisplay {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+#game-container {
+  margin: 10px;
+}
+#startButton {
+  padding: 8px 16px;
+  background-color: #007aff;
+  border: none;
+  border-radius: 5px;
+  font-size: 18px;
+  color: #fff;
+  cursor: pointer;
+  margin-top: 8px;
+}
+#startButton:hover { background-color: #0051a8; }
+
+#backButton {
+  position: absolute;
+  top: 20px; left: 20px;
+  width: 20px; height: 20px;
+  background-color: red; border-radius: 50%;
+  cursor: pointer; z-index:1000;
+}
+#info-icon, #zoom-icon {
+  position: fixed; top: 20px;
+  width: 30px; height: 30px;
+  border: 2px solid #aaa; border-radius: 50%;
+  text-align: center; line-height: 26px; font-size:16px;
+  background:#fff; color:#555; cursor:pointer;
+  box-shadow:0 2px 4px rgba(0,0,0,0.1); z-index:1000;
+}
+#zoom-icon { right: 60px; }
+#info-icon { right: 20px; }
+
+#zoom-message {
+  position: fixed; top:50%; left:50%;
+  transform: translate(-50%,-50%);
+  background: rgba(0,0,0,0.8); padding:20px; border-radius:8px;
+  font-size:24px; display:none; z-index:2000;
+}
+
+.modal {
+  display: none; position: fixed; top:0; left:0;
+  width:100%; height:100%; background:rgba(0,0,0,0.6);
+  z-index:1001;
+}
+.modal-content {
+  background: #111; margin:10% auto; padding:20px;
+  width:80%; max-width:400px; position:relative;
+  border-radius:8px; color:#fff;
+}
+.close {
+  position:absolute; top:10px; right:15px;
+  font-size:24px; color:#aaa; cursor:pointer;
+}
+.close:hover { color:#fff; }
+
+#livesDisplay {
+  display: flex;
+  gap: 4px;
+}
+.heart {
+  font-size: 24px;
+  line-height: 1;
+}
