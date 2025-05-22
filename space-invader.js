@@ -76,7 +76,7 @@ function spawnInvaders(scene) {
 
 function schedulePowerup(scene) {
   scene.time.addEvent({
-    delay: Phaser.Math.Between(5000, 10000),
+    delay: Phaser.Math.Between(20000, 40000),
     callback: () => {
       if (gameRunning && powerups.countActive(true) < 2) {
         const type = Phaser.Utils.Array.GetRandom(powerTypes);
