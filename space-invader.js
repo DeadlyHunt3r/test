@@ -151,7 +151,7 @@ function collectPowerup(playerObj, pu) {
 
 // 3) ─────────── Phaser‑Scene‑Funktionen ───────────
 function preload() {
-  this.load.image('space', '../assets/media/space-background.png'); // Hintergrund
+  this.load.image('space', 'assets/media/space-background.png'); // Hintergrund
 
   let g = this.make.graphics({ add: false });
   g.fillStyle(0xffffff); g.fillRect(0,0,40,20); g.generateTexture('player',40,20); g.clear();
