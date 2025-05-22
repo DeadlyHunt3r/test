@@ -3,146 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Panda Gaming</title>
-  <!-- Externe CSS-Datei einbinden -->
-  <link rel="stylesheet" href="index.css">
+  <title>Space Invaders</title>
+  <link rel="stylesheet" href="space-invader.css">
 </head>
 <body>
-  <!-- Header-Bereich -->
-  <header>
-    <div class="header-container">
-      <div class="logo" id="logo">Panda Gaming – A Phoenix Events Creation</div>  
-      <div class="nav-buttons">
-        <button id="adminBtn" class="button" style="display: none;">User</button>
-        <button id="changelogBtn" class="button">Changelog</button>
-        <button id="highscoreBtn" class="button">Highscore</button>
-		<button id="luckyBtn" class="button" style="display: none;">Lucky Panda</button>
-        <button id="gamesBtn" class="button">Games</button>
-        <!-- Neuer Session-Button -->
-        <button id="sessionBtn" class="button">Season</button>
-        <button id="loginBtn" class="button">Login</button>
-      </div>
-    </div>
-  </header>
+  <div id="game-ui">
+    <div id="powerupDisplay"></div>
+    <div id="scoreDisplay">Score: 0</div>
+    <div id="livesDisplay">Leben: 3</div>
+    <div id="game-container"></div>
+    <button id="startButton">Start</button>
+  </div>
 
-  <!-- Notification Message -->
-  <div id="notification"></div>
-  
-  <!-- Login Modal -->
-  <div id="loginModal" class="modal">
+  <div id="backButton" title="Zurück zu index.html"></div>
+  <div id="zoom-icon" title="Zoom umschalten">🔍</div>
+  <div id="info-icon">i</div>
+  <div id="zoom-message">Zoom aktiv</div>
+
+  <div id="info-modal" class="modal" aria-modal="true">
     <div class="modal-content">
-      <span class="close" id="closeLoginModal">&times;</span>
-      <h2>Login</h2>
-      <form id="loginForm">
-        <input type="text" id="username" name="username" placeholder="Benutzername" required>
-        <input type="password" id="password" name="password" placeholder="Passwort" required>
-        <button type="submit" class="button">Anmelden</button>
-      </form>
-      <button id="registerBtn" class="button" style="margin-top:10px;">Registrieren</button>
+      <span class="close">&times;</span>
+      <p>
+        Schieße alle Aliens ab, bevor sie die Basis erreichen.<br><br>
+        Sammle Power‑Ups:<br>
+        • **Schild**: Unverwundbar für 10 s<br>
+        • **Schnellfeuer**: Feuerrate verdoppelt für 10 s<br>
+        • **Bomben**: Zerstört alle gegnerischen Schüsse<br><br>
+        Viel Spaß!
+      </p>
     </div>
   </div>
-  
-  <!-- Registrierungs-Info Modal -->
-  <div id="registerModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeRegisterModal">&times;</span>
-      <p>Für eine Registrierung bitte bei Phoenix Events melden.</p>
-    </div>
-  </div>
-  
-  <!-- Admin Modal: User Management -->
-  <div id="adminModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeAdminModal">&times;</span>
-      <h2>User Management</h2>
-      <div id="adminModalContent">
-        <!-- Dynamische Benutzerliste -->
-      </div>
-    </div>
-  </div>
-  
-  <!-- Games Modal: Liste aller Spiele -->
-  <div id="gamesModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeGamesModal">&times;</span>
-      <h2>Spiele</h2>
-      <div id="gameListGames">
-        <!-- Dynamische Spiel-Liste -->
-      </div>
-    </div>
-  </div>
-  
-  <!-- Highscore Games Modal -->
-  <div id="highscoreGamesModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeHighscoreGamesModal">&times;</span>
-      <h2>Highscore - Spiele</h2>
-      <div id="gameListHighscore">
-        <!-- Dynamische Spiel-Liste -->
-      </div>
-    </div>
-  </div>
-  
-  <!-- Score Modal -->
-  <div id="scoreModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeScoreModal">&times;</span>
-      <h2>Highscore - Details</h2>
-      <div id="scoreDetails">
-        <!-- Anzeige: Spielername und Score -->
-      </div>
-    </div>
-  </div>
-  
-  <!-- Changelog Modal -->
-  <div id="changelogModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeChangelogModal">&times;</span>
-      <h2>Changelog</h2>
-      <div id="changelogContent">
-        <!-- Changelog-Inhalt -->
-      </div>
-    </div>
-  </div>
-  
-  <!-- Phoenix Fusion Auswahl Modal -->
-  <div id="phoenixFusionModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closePhoenixFusionModal">&times;</span>
-      <h2>Phoenix Fusion - Auswahl</h2>
-      <button id="btnPhoenixFusionGross" class="button">Phoenix-Fusion-Groß</button>
-      <button id="btnPhoenixFusionNormal" class="button">Phoenix-Fusion-Normal</button>
-    </div>
-  </div>
-  
-  <!-- Neuer Session Modal -->
-  <div id="sessionModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeSessionModal">&times;</span>
-      <h2>Season 1</h2>
-      <button id="sessionHighscoreBtn" class="button">Season Highscore</button>
-      <button id="sessionGameBtn" class="button">Aktuelles Season Spiel</button>
-    </div>
-  </div>
-  
-  <!-- Loading Overlay -->
-  <div id="loadingOverlay">
-    <div id="loadingBarContainer">
-      <div id="loadingBar"></div>
-    </div>
-  </div>
-  
-  <!-- Countdown Modal für Session -->
-  <div id="sessionCountdownModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeSessionCountdown">&times;</span>
-      <h2>Nächste Season Countdown</h2>
-      <div id="countdownTimer"></div>
-    </div>
-  </div>
-  
-    <!-- Externe JavaScript-Datei einbinden -->
-  <script src="index.js" defer></script>
-  
+
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+  <script src="space-invader.js"></script>
 </body>
 </html>
