@@ -28,7 +28,7 @@ let score = 0, lives = 3, wave = 0;
 let waveCleared = false;
 
 const maxLives = 3;
-const maxWaves = 5;
+const maxWaves = 100000;
 const powerDuration = 10000;
 const invaderBaseSpeed = 30;
 const powerTypes = ['powerShield', 'powerRapid', 'powerBomb'];
@@ -115,13 +115,14 @@ function collectPowerup(playerObj, pu) {
 
   if (type === 'powerShield') {
     shieldActive = true;
-    shieldEnd = now + powerDuration;
+    shieldEnd    = now + powerDuration;
     player.setTint(0x00ffdd);
-  }
-  else if (type === 'powerRapid') {
+    updateUI();   // ← sofort die UI updaten!
+
+  } else if (type === 'powerRapid') {
     rapidActive = true;
-    rapidEnd = now + powerDuration;
-    // ⚡-Icon implementiert wie gehabt
+    rapidEnd    = now + powerDuration;
+
     if (rapidIcon) {
       rapidIcon.destroy();
       rapidTween.stop();
@@ -267,7 +268,31 @@ function startGame() {
 }
 
 function endGame() {
-  gameRunning = false; lives = 0; updateUI();
+  gameRunning = false;
+  lives       = 0;
+
+  // 1) UI sofort updaten
+  updateUI();
+
+  // 2) Alle PowerUp-Flags zurücksetzen
+  shieldActive = false;
+  rapidActive  = false;
+
+  // 3) Player-Tint & Icon/Tween entfernen
+  player.clearTint();
+  if (rapidIcon) {
+    rapidIcon.destroy();
+    rapidIcon = null;
+  }
+  if (rapidTween) {
+    rapidTween.stop();
+    rapidTween = null;
+  }
+
+  // 4) Alle fallenden PowerUps aus dem Spiel entfernen
+  powerups.clear(true, true);
+
+  // 5) Start-Button wieder anzeigen
   startButton.style.display = 'block';
 }
 
