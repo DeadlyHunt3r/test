@@ -45,7 +45,7 @@ function updateUI() {
   scoreDisplay.textContent = 'Score: ' + score;
   livesDisplay.innerHTML = '';
   if (shieldActive) {
-    for (let i = 0; i < lives; i++) livesDisplay.innerHTML += '<span class="heart">🩵</span>';
+    for (let i = 0; i < lives; i++) livesDisplay.innerHTML += '<span class="heart">💙</span>';
     for (let i = lives; i < maxLives; i++) livesDisplay.innerHTML += '<span class="heart">🤍</span>';
   } else {
     for (let i = 0; i < lives; i++) livesDisplay.innerHTML += '<span class="heart">❤️</span>';
@@ -60,7 +60,7 @@ function schedulePowerup(scene) {
     callback: () => {
       if (gameRunning && powerups.countActive(true) < 2) {
         const type = Phaser.Utils.Array.GetRandom(powerTypes);
-        const emoji = { powerShield: '🩵', powerRapid: '⚡', powerBomb: '💣' }[type];
+        const emoji = { powerShield: '💙', powerRapid: '⚡', powerBomb: '💣' }[type];
         const x = Phaser.Math.Between(30, size - 30);
         const pu = scene.add.text(x, 30, emoji, { fontSize: '32px' }).setOrigin(0.5);
         powerups.add(pu);
@@ -95,7 +95,7 @@ function preload() {
   this.load.image('player', 'assets/media/tiny_ship20.png');
   this.load.image('invader', 'assets/media/tiny_ship16.png');
   let g = this.make.graphics({ add: false });
-  g.fillStyle(0xffffff); g.fillRect(0, 0, 4, 12); g.generateTexture('shot', 4, 12); g.clear();
+  g.fillStyle(0x39FF14); g.fillRect(0, 0, 4, 12); g.generateTexture('shot', 4, 12); g.clear();
   g.fillStyle(0xff0000); g.fillRect(0, 0, 4, 12); g.generateTexture('enemyShot', 4, 12); g.clear();
   g.fillStyle(0x00ffdd); g.fillCircle(10, 10, 10); g.generateTexture('powerShield', 20, 20); g.clear();
   g.fillStyle(0xffff00); g.fillRect(0, 0, 20, 20); g.generateTexture('powerRapid', 20, 20); g.clear();
