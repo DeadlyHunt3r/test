@@ -42,7 +42,6 @@ const invulDuration = 1500; // ms
 // Phaser-Objekte
 let player, cursors;
 let shots, invaders, enemyShots, powerups;
-let playerCircle;
 let rapidIcon, rapidTween;
 
 // 2) ─────────── Helper-Funktionen ───────────
@@ -80,7 +79,7 @@ function schedulePowerup(scene) {
 // 3) ─────────── saveScore-Funktion für Highscore ───────────
 async function saveScore(score) {
   const playerName = localStorage.getItem("currentUser") || "Guest";
-  const apiUrl = "https://script.google.com/macros/s/AKfycbzN1dYjIwvmc083UZy_Xqxq_OIAXFXqhBe53Fy75JhDEyarjr4Sxm_h9NcIXHMuiopv/exec";
+  const apiUrl = "https://script.google.com/macros/s/.../exec";
   const sheetName = "season 2";
   const url = `${apiUrl}?sheetName=${encodeURIComponent(sheetName)}&player=${encodeURIComponent(playerName)}&score=${encodeURIComponent(score)}`;
   try {
@@ -94,8 +93,8 @@ async function saveScore(score) {
 
 // 4) ─────────── Phaser-Scene-Funktionen ───────────
 function preload() {
-  this.load.image('player', 'assets/media/tiny_ship20.png');
-  this.load.image('invader', 'assets/media/tiny_ship16.png');
+  this.load.image('player', '../assets/media/tiny_ship20.png');
+  this.load.image('invader', '../assets/media/tiny_ship16.png');
   let g = this.make.graphics({ add: false });
   g.fillStyle(0x39FF14); g.fillRect(0, 0, 4, 12); g.generateTexture('shot', 4, 12); g.clear();
   g.fillStyle(0xff0000); g.fillRect(0, 0, 4, 12); g.generateTexture('enemyShot', 4, 12); g.clear();
@@ -124,6 +123,7 @@ function create() {
 function update(time, delta) {
   if (!gameRunning) return;
   const now = Date.now();
+
   // Invulnerability beenden
   if (invulnerable && now > invulnerableEnd) {
     invulnerable = false;
@@ -131,6 +131,13 @@ function update(time, delta) {
     player.setAlpha(1);
   }
 
+  // Blinken während Invulnerabilität
+  if (invulnerable) {
+    const blinkOn = Math.floor(now / 200) % 2 === 0;
+    player.setAlpha(blinkOn ? 0.5 : 1);
+  }
+
+  // Bewegung und Schießen
   player.setVelocityX(0);
   if (cursors.left.isDown || keyA.isDown)  player.setVelocityX(-200);
   if (cursors.right.isDown|| keyD.isDown) player.setVelocityX(200);
@@ -140,10 +147,10 @@ function update(time, delta) {
     player.lastShot = time;
   }
 
+  // Invader-Logik
   invaders.children.iterate(inv => {
     if (!inv.body) return;
-    if ((inv.x <= 16 && inv.getData('dir') === -1) ||
-        (inv.x >= size - 16 && inv.getData('dir') === 1)) {
+    if ((inv.x <= 16 && inv.getData('dir') === -1) || (inv.x >= size - 16 && inv.getData('dir') === 1)) {
       inv.setData('dir', -inv.getData('dir'));
       inv.y += 20;
     }
@@ -154,6 +161,7 @@ function update(time, delta) {
     }
   });
 
+  // Wellenwechsel
   if (invaders.countActive() > 0) waveCleared = true;
   else if (waveCleared) {
     waveCleared = false;
@@ -161,15 +169,15 @@ function update(time, delta) {
     else endGame();
   }
 
-  if (shieldActive && now > shieldEnd) {
-    shieldActive = false; player.clearTint(); updateUI();
-  }
+  // Powerup-Timer
+  if (shieldActive && now > shieldEnd) { shieldActive = false; player.clearTint(); updateUI(); }
   if (rapidActive && now > rapidEnd) {
     rapidActive = false;
     if (rapidIcon) { rapidIcon.destroy(); rapidIcon = null; }
     if (rapidTween) { rapidTween.stop(); rapidTween = null; }
   }
   if (rapidActive && rapidIcon) rapidIcon.setPosition(player.x, player.y - 40);
+
   powerups.getChildren().forEach(pu => {
     pu.y += 80 * (delta / 1000);
     if (pu.y > size + 20) powerups.remove(pu, true, true);
@@ -198,26 +206,22 @@ function destroyInvader(shot, inv) {
 }
 
 function playerHit(playerObj, shot) {
-  // Schaden nur, wenn nicht unverwundbar
   if (invulnerable) return;
   shot.destroy();
   if (!shieldActive) {
     lives--; updateUI();
     if (lives <= 0) return endGame();
-    // Invulnerabilität aktivieren
     invulnerable = true;
     invulnerableEnd = Date.now() + invulDuration;
     player.setTint(0xff0000);
-    player.setAlpha(0.5);
   }
 }
 
 function collectPowerup(playerObj, pu) {
   const type = pu.getData('type'); powerups.remove(pu, true, true);
   const now = Date.now();
-  if (type === 'powerShield') {
-    shieldActive = true; shieldEnd = now + powerDuration; player.setTint(0x00ffdd); updateUI();
-  } else if (type === 'powerRapid') {
+  if (type === 'powerShield') { shieldActive = true; shieldEnd = now + powerDuration; player.setTint(0x00ffdd); updateUI(); }
+  else if (type === 'powerRapid') {
     rapidActive = true; rapidEnd = now + powerDuration;
     if (rapidIcon) { rapidIcon.destroy(); rapidTween.stop(); }
     rapidIcon = this.add.text(player.x, player.y - 40, '⚡', { fontSize: '24px' }).setOrigin(0.5);
@@ -227,11 +231,9 @@ function collectPowerup(playerObj, pu) {
     activeInv.forEach(inv => {
       const bounds = inv.getBounds(); const offX = game.canvas.offsetLeft; const offY = game.canvas.offsetTop;
       const expl = document.createElement('div'); expl.textContent = '💥'; expl.style.position = 'absolute';
-      expl.style.left = `${offX + bounds.centerX}px`;
-      expl.style.top = `${offY + bounds.centerY}px`;
+      expl.style.left = `${offX + bounds.centerX}px`; expl.style.top = `${offY + bounds.centerY}px`;
       expl.style.transform = 'translate(-50%, -50%)'; expl.style.fontSize = '32px'; expl.style.pointerEvents = 'none';
-      gameUI.appendChild(expl);
-      setTimeout(() => expl.remove(), 500);
+      gameUI.appendChild(expl); setTimeout(() => expl.remove(), 500);
       inv.destroy(); score += 10;
     }); updateUI();
   }
