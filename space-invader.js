@@ -131,10 +131,11 @@ function update(time, delta) {
     player.setAlpha(1);
   }
 
-  // Blinken während Invulnerabilität
+  // Blinken während Invulnerabilität: zwischen getintet und normal
   if (invulnerable) {
     const blinkOn = Math.floor(now / 200) % 2 === 0;
-    player.setAlpha(blinkOn ? 0.5 : 1);
+    if (blinkOn) player.setTint(0xff0000);
+    else player.clearTint();
   }
 
   // Bewegung und Schießen
