@@ -34,6 +34,11 @@ const powerTypes = ['powerShield', 'powerRapid', 'powerBomb'];
 let shieldActive = false, rapidActive = false;
 let shieldEnd = 0, rapidEnd = 0;
 
+// Invulnerability nach Treffer
+let invulnerable = false;
+let invulnerableEnd = 0;
+const invulDuration = 1500; // ms
+
 // Phaser-Objekte
 let player, cursors;
 let shots, invaders, enemyShots, powerups;
@@ -74,17 +79,14 @@ function schedulePowerup(scene) {
 
 // 3) ─────────── saveScore-Funktion für Highscore ───────────
 async function saveScore(score) {
-  const player = localStorage.getItem("currentUser") || "Guest";
+  const playerName = localStorage.getItem("currentUser") || "Guest";
   const apiUrl = "https://script.google.com/macros/s/AKfycbzN1dYjIwvmc083UZy_Xqxq_OIAXFXqhBe53Fy75JhDEyarjr4Sxm_h9NcIXHMuiopv/exec";
   const sheetName = "season 2";
-  const url = `${apiUrl}?sheetName=${encodeURIComponent(sheetName)}&player=${encodeURIComponent(player)}&score=${encodeURIComponent(score)}`;
+  const url = `${apiUrl}?sheetName=${encodeURIComponent(sheetName)}&player=${encodeURIComponent(playerName)}&score=${encodeURIComponent(score)}`;
   try {
     const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP Fehler! Status: ${response.status}`);
-    }
-    const data = await response.json();
-    console.log("Score erfolgreich gespeichert:", data);
+    if (!response.ok) throw new Error(`HTTP Fehler! Status: ${response.status}`);
+    console.log("Score erfolgreich gespeichert:", await response.json());
   } catch (error) {
     console.error("Fehler beim Speichern des Scores:", error);
   }
@@ -105,7 +107,6 @@ function preload() {
 function create() {
   player = this.physics.add.sprite(size / 2, size - 40, 'player');
   player.setCollideWorldBounds(true);
-  playerCircle = this.add.graphics();
   shots        = this.physics.add.group();
   enemyShots   = this.physics.add.group();
   invaders     = this.physics.add.group();
@@ -122,19 +123,27 @@ function create() {
 
 function update(time, delta) {
   if (!gameRunning) return;
+  const now = Date.now();
+  // Invulnerability beenden
+  if (invulnerable && now > invulnerableEnd) {
+    invulnerable = false;
+    player.clearTint();
+    player.setAlpha(1);
+  }
+
   player.setVelocityX(0);
-  if (cursors.left.isDown)  player.setVelocityX(-200);
-  if (cursors.right.isDown) player.setVelocityX(200);
   if (cursors.left.isDown || keyA.isDown)  player.setVelocityX(-200);
-  if (cursors.right.isDown || keyD.isDown) player.setVelocityX(200);
+  if (cursors.right.isDown|| keyD.isDown) player.setVelocityX(200);
   if (cursors.space.isDown && (!player.lastShot || time - player.lastShot > (rapidActive ? 450 : 600))) {
     const shot = shots.create(player.x, player.y - 20, 'shot');
     shot.setVelocityY(-300);
     player.lastShot = time;
   }
+
   invaders.children.iterate(inv => {
     if (!inv.body) return;
-    if ((inv.x <= 16 && inv.getData('dir') === -1) || (inv.x >= size - 16 && inv.getData('dir') === 1)) {
+    if ((inv.x <= 16 && inv.getData('dir') === -1) ||
+        (inv.x >= size - 16 && inv.getData('dir') === 1)) {
       inv.setData('dir', -inv.getData('dir'));
       inv.y += 20;
     }
@@ -144,14 +153,17 @@ function update(time, delta) {
       e.setVelocityY(150);
     }
   });
+
   if (invaders.countActive() > 0) waveCleared = true;
   else if (waveCleared) {
     waveCleared = false;
     if (wave < maxWaves) this.time.delayedCall(1000, () => spawnInvaders(this));
     else endGame();
   }
-  const now = Date.now();
-  if (shieldActive && now > shieldEnd) { shieldActive = false; player.clearTint(); updateUI(); }
+
+  if (shieldActive && now > shieldEnd) {
+    shieldActive = false; player.clearTint(); updateUI();
+  }
   if (rapidActive && now > rapidEnd) {
     rapidActive = false;
     if (rapidIcon) { rapidIcon.destroy(); rapidIcon = null; }
@@ -186,13 +198,26 @@ function destroyInvader(shot, inv) {
 }
 
 function playerHit(playerObj, shot) {
-  shot.destroy(); if (!shieldActive) { lives--; if (lives <= 0) endGame(); updateUI(); }
+  // Schaden nur, wenn nicht unverwundbar
+  if (invulnerable) return;
+  shot.destroy();
+  if (!shieldActive) {
+    lives--; updateUI();
+    if (lives <= 0) return endGame();
+    // Invulnerabilität aktivieren
+    invulnerable = true;
+    invulnerableEnd = Date.now() + invulDuration;
+    player.setTint(0xff0000);
+    player.setAlpha(0.5);
+  }
 }
 
 function collectPowerup(playerObj, pu) {
-  const type = pu.getData('type'); powerups.remove(pu, true, true); const now = Date.now();
-  if (type === 'powerShield') { shieldActive = true; shieldEnd = now + powerDuration; player.setTint(0x00ffdd); updateUI(); }
-  else if (type === 'powerRapid') {
+  const type = pu.getData('type'); powerups.remove(pu, true, true);
+  const now = Date.now();
+  if (type === 'powerShield') {
+    shieldActive = true; shieldEnd = now + powerDuration; player.setTint(0x00ffdd); updateUI();
+  } else if (type === 'powerRapid') {
     rapidActive = true; rapidEnd = now + powerDuration;
     if (rapidIcon) { rapidIcon.destroy(); rapidTween.stop(); }
     rapidIcon = this.add.text(player.x, player.y - 40, '⚡', { fontSize: '24px' }).setOrigin(0.5);
@@ -202,9 +227,11 @@ function collectPowerup(playerObj, pu) {
     activeInv.forEach(inv => {
       const bounds = inv.getBounds(); const offX = game.canvas.offsetLeft; const offY = game.canvas.offsetTop;
       const expl = document.createElement('div'); expl.textContent = '💥'; expl.style.position = 'absolute';
-      expl.style.left = `${offX + bounds.centerX}px`; expl.style.top = `${offY + bounds.centerY}px`;
+      expl.style.left = `${offX + bounds.centerX}px`;
+      expl.style.top = `${offY + bounds.centerY}px`;
       expl.style.transform = 'translate(-50%, -50%)'; expl.style.fontSize = '32px'; expl.style.pointerEvents = 'none';
-      gameUI.appendChild(expl); setTimeout(() => expl.remove(), 500);
+      gameUI.appendChild(expl);
+      setTimeout(() => expl.remove(), 500);
       inv.destroy(); score += 10;
     }); updateUI();
   }
@@ -212,20 +239,22 @@ function collectPowerup(playerObj, pu) {
 
 function startGame() {
   score = 0; lives = 3; wave = 0; waveCleared = false; gameRunning = true;
+  invulnerable = false; player.clearTint(); player.setAlpha(1);
   shots.clear(true, true); enemyShots.clear(true, true); powerups.clear(true, true);
   spawnInvaders(game.scene.scenes[0]); startButton.style.display = 'none'; updateUI();
 }
 
 function endGame() {
   gameRunning = false; lives = 0; updateUI(); saveScore(score);
-  shieldActive = false; rapidActive = false; player.clearTint();
+  shieldActive = false; rapidActive = false; invulnerable = false;
+  player.clearTint(); player.setAlpha(1);
   if (rapidIcon) { rapidIcon.destroy(); rapidIcon = null; }
   if (rapidTween) { rapidTween.stop(); rapidTween = null; }
   powerups.clear(true, true); startButton.style.display = 'block';
 }
 
 startButton.addEventListener('click', startGame);
-backButton.addEventListener('click', () => location.href = 'index.html');
+backButton.addEventListener('click', () => location.href = '../index.html');
 zoomIcon.addEventListener('click', () => {
   const zoom = gameUI.style.transform !== 'scale(1.5)';
   gameUI.style.transform = zoom ? 'scale(1.5)' : 'scale(1)';
