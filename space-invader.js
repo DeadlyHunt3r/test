@@ -93,8 +93,8 @@ async function saveScore(score) {
 
 // 4) ─────────── Phaser-Scene-Funktionen ───────────
 function preload() {
-  this.load.image('player', '../assets/media/tiny_ship20.png');
-  this.load.image('invader', '../assets/media/tiny_ship16.png');
+  this.load.image('player', 'assets/media/tiny_ship20.png');
+  this.load.image('invader', 'assets/media/tiny_ship16.png');
   let g = this.make.graphics({ add: false });
   g.fillStyle(0x39FF14); g.fillRect(0, 0, 4, 12); g.generateTexture('shot', 4, 12); g.clear();
   g.fillStyle(0xff0000); g.fillRect(0, 0, 4, 12); g.generateTexture('enemyShot', 4, 12); g.clear();
